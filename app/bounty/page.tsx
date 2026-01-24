@@ -5,7 +5,7 @@ import { getAllBounties } from "@/lib/mock-bounty"
 import { BountyCard } from "@/components/bounty/bounty-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-
+import { Slider } from "@/components/ui/slider"
 import { Separator } from "@/components/ui/separator"
 import {
     Select,
@@ -243,6 +243,85 @@ export default function BountiesPage() {
                                                             </Label>
                                                         </div>
                                                     ))}
+                                                </div>
+                                            </AccordionContent>
+                                        </AccordionItem>
+
+                                        {/* Project */}
+                                        <AccordionItem value="project" className="border-none mt-2">
+                                            <AccordionTrigger className="text-xs font-medium text-gray-400 py-2 hover:no-underline hover:text-gray-200">
+                                                PROJECT
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                <div className="space-y-2 pt-2 max-h-40 overflow-y-auto slim-scrollbar pr-2 leading-none">
+                                                    {projects.map(project => (
+                                                        <div key={project} className="flex items-center space-x-2.5 group py-0.5">
+                                                            <Checkbox
+                                                                id={`proj-${project}`}
+                                                                checked={selectedProjects.includes(project)}
+                                                                onCheckedChange={() => toggleProject(project)}
+                                                                className="border-gray-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                                            />
+                                                            <Label
+                                                                htmlFor={`proj-${project}`}
+                                                                className="text-sm font-normal text-gray-400 capitalize cursor-pointer group-hover:text-gray-200 transition-colors truncate"
+                                                                title={project}
+                                                            >
+                                                                {project}
+                                                            </Label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </AccordionContent>
+                                        </AccordionItem>
+
+                                        {/* Tags */}
+                                        <AccordionItem value="tags" className="border-none mt-2">
+                                            <AccordionTrigger className="text-xs font-medium text-gray-400 py-2 hover:no-underline hover:text-gray-200">
+                                                TAGS
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                <div className="space-y-2 pt-2 max-h-40 overflow-y-auto slim-scrollbar pr-2 leading-none">
+                                                    {allTags.map(tag => (
+                                                        <div key={tag} className="flex items-center space-x-2.5 group py-0.5">
+                                                            <Checkbox
+                                                                id={`tag-${tag}`}
+                                                                checked={selectedTags.includes(tag)}
+                                                                onCheckedChange={() => toggleTag(tag)}
+                                                                className="border-gray-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                                            />
+                                                            <Label
+                                                                htmlFor={`tag-${tag}`}
+                                                                className="text-sm font-normal text-gray-400 lowercase cursor-pointer group-hover:text-gray-200 transition-colors truncate"
+                                                                title={tag}
+                                                            >
+                                                                {tag}
+                                                            </Label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </AccordionContent>
+                                        </AccordionItem>
+
+                                        {/* Reward Range */}
+                                        <AccordionItem value="reward" className="border-none mt-2">
+                                            <AccordionTrigger className="text-xs font-medium text-gray-400 py-2 hover:no-underline hover:text-gray-200">
+                                                REWARD RANGE
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                <div className="space-y-4 pt-2 px-1">
+                                                    <Slider
+                                                        defaultValue={[0, 5000]}
+                                                        max={5000}
+                                                        step={100}
+                                                        value={[rewardRange[0], rewardRange[1]]}
+                                                        onValueChange={(val) => setRewardRange([val[0], val[1] ?? 5000])}
+                                                        className="my-4"
+                                                    />
+                                                    <div className="flex items-center justify-between text-[10px] text-gray-500 font-medium">
+                                                        <span>${rewardRange[0]}</span>
+                                                        <span>${rewardRange[1]}+</span>
+                                                    </div>
                                                 </div>
                                             </AccordionContent>
                                         </AccordionItem>
