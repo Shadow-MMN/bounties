@@ -5,8 +5,7 @@ import { getAllBounties } from "@/lib/mock-bounty"
 import { BountyCard } from "@/components/bounty/bounty-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Slider } from "@/components/ui/slider"
+
 import { Separator } from "@/components/ui/separator"
 import {
     Select,
