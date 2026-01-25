@@ -5,12 +5,11 @@ import { toast } from 'sonner';
 
 /**
  * Input for change password mutation
- * Note: confirmPassword validation should be done at the form level
- * before calling this mutation
  */
 interface ChangePasswordInput {
     currentPassword: string;
     newPassword: string;
+    confirmPassword: string;
     revokeOtherSessions?: boolean;
 }
 
@@ -39,6 +38,11 @@ export function useChangePassword() {
 
     return useMutation({
         mutationFn: async (input: ChangePasswordInput) => {
+            // Validate passwords match
+            if (input.newPassword !== input.confirmPassword) {
+                throw new Error('Passwords do not match');
+            }
+
             // Validate new password strength
             const validation = validatePassword(input.newPassword);
             if (!validation.valid) {
