@@ -19,9 +19,7 @@ export function useMediaQuery(query: string): boolean {
         const media = window.matchMedia(query)
 
         // Update the state with the current value
-        if (media.matches !== matches) {
-            setMatches(media.matches)
-        }
+        setMatches(media.matches)
 
         // Listener callback
         const listener = () => setMatches(media.matches)

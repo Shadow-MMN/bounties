@@ -38,19 +38,22 @@ export function ProjectCard({ project }: { project: Project }) {
             className={cn(
               "absolute top-3 right-3 z-10 bg-[#1A1F21]/80 backdrop-blur-sm border-white/10 text-white/90 text-[10px] px-3 py-1 h-6 font-medium",
               project.status === "Active" &&
-                "text-green-400 border-green-500/20",
+              "text-green-400 border-green-500/20",
             )}
           >
             {project.status}
           </Badge>
 
-        
+
           <div className="flex flex-col items-center justify-center space-y-3">
             {project.logoUrl ? (
-              <img
+              <Image
                 src={project.logoUrl}
                 alt={project.name}
-                className="h-10 object-contain brightness-90 grayscale hover:grayscale-0 transition-all opacity-80"
+                width={40}
+                height={40}
+                unoptimized
+                className="h-10 w-auto object-contain brightness-90 grayscale hover:grayscale-0 transition-all opacity-80"
               />
             ) : (
               <span className="text-2xl font-bold tracking-tighter text-white/40 italic">

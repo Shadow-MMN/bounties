@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import type { Bounty } from "@/types/bounty"
-import { ExternalLink, Github, Link2, Clock, Calendar, Check } from "lucide-react"
+import { Github, Link2, Clock, Calendar, Check } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { cn } from "@/lib/utils"
 

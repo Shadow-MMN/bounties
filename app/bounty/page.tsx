@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/accordion"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { Search, Filter, X, ArrowUpDown } from "lucide-react"
+import { Search, Filter } from "lucide-react"
 
 export default function BountiesPage() {
     const { data, isLoading, isError, error, refetch } = useBounties()
