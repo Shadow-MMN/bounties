@@ -11,7 +11,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
-import Link from "next/link";
 
 interface ProjectCardProps {
   project: Project;
@@ -48,7 +47,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     : 0;
 
   return (
-    <Link href={`/projects/${project.id}`} className="block group">
+    <div className="block group">
       <Card className="h-full bg-background-card border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 cursor-pointer">
         <CardHeader className="space-y-3">
           <div className="flex items-start justify-between gap-2">
@@ -123,6 +122,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </div>
   );
 }

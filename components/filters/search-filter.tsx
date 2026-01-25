@@ -18,6 +18,11 @@ export function SearchFilter({
   const [localValue, setLocalValue] = useState(value);
   const isFirstRender = useRef(true);
 
+  // Sync localValue when parent value changes (e.g. when filters are cleared)
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
+
   // Debounce search input
   useEffect(() => {
     if (isFirstRender.current) {

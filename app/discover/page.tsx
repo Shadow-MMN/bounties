@@ -9,21 +9,37 @@ import { ProjectCard } from "@/components/cards/project-card";
 import { BountyCard } from "@/components/cards/bounty-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { mockProjects, mockBounties } from "@/lib/mock-data";
-import { FilterState, TabType, Project, Bounty } from "@/lib/types";
+import { FilterState, TabType } from "@/lib/types";
 import { PackageOpen, Coins } from "lucide-react";
+
+// Validation helpers
+const isValidTab = (value: string | null): value is TabType => {
+  return value === "projects" || value === "bounties";
+};
+
+const isValidSort = (value: string | null): value is FilterState["sort"] => {
+  return (
+    value === "newest" ||
+    value === "recentlyUpdated" ||
+    value === "highestReward"
+  );
+};
 
 export default function DiscoverPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Initialize state from URL params
+  // Initialize state from URL params with validation
+  const initialTabParam = searchParams.get("tab");
+  const initialSortParam = searchParams.get("sort");
+
   const [activeTab, setActiveTab] = useState<TabType>(
-    (searchParams.get("tab") as TabType) || "projects",
+    isValidTab(initialTabParam) ? initialTabParam : "projects",
   );
   const [filters, setFilters] = useState<FilterState>({
     search: searchParams.get("search") || "",
     tags: searchParams.get("tags")?.split(",").filter(Boolean) || [],
-    sort: (searchParams.get("sort") as FilterState["sort"]) || "newest",
+    sort: isValidSort(initialSortParam) ? initialSortParam : "newest",
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -70,13 +86,17 @@ export default function DiscoverPage() {
       );
     }
 
-    // Apply sort
+    // Apply sort (only valid sorts for projects)
     switch (filters.sort) {
       case "newest":
         result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         break;
       case "recentlyUpdated":
         result.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+        break;
+      default:
+        // Fallback to newest for unsupported sort values (e.g. "highestReward")
+        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         break;
     }
 

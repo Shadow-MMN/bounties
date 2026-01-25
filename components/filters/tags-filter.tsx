@@ -1,6 +1,5 @@
 "use client";
 
-import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -69,25 +68,28 @@ export function TagsFilter({ value, onChange }: TagsFilterProps) {
             )}
           </div>
           <div className="grid grid-cols-2 gap-3">
-            {AVAILABLE_TAGS.map((tag) => (
-              <div key={tag} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`tag-${tag}`}
-                  checked={value.includes(tag)}
-                  onCheckedChange={() => {
-                    toggleTag(tag);
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                />
-                <label
-                  htmlFor={`tag-${tag}`}
-                  className="text-sm cursor-pointer select-none hover:text-primary transition-colors text-gray-200"
-                >
-                  {tag}
-                </label>
-              </div>
-            ))}
+            {AVAILABLE_TAGS.map((tag, index) => {
+              const sanitizedId = `tag-${index}-${tag.toLowerCase().replace(/\s+/g, "-")}`;
+              return (
+                <div key={tag} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={sanitizedId}
+                    checked={value.includes(tag)}
+                    onCheckedChange={() => {
+                      toggleTag(tag);
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  />
+                  <label
+                    htmlFor={sanitizedId}
+                    className="text-sm cursor-pointer select-none hover:text-primary transition-colors text-gray-200"
+                  >
+                    {tag}
+                  </label>
+                </div>
+              );
+            })}
           </div>
         </div>
       </PopoverContent>
