@@ -13,9 +13,24 @@ export const socket: Socket = io(SOCKET_URL, {
   transports: ['websocket'], // Prefer WebSockets for better performance
 });
 
+let lastPingTime: number;
+
 // Logging and Event Handlers
 socket.on('connect', () => {
   console.log('[Socket] Connected to server:', socket.id);
+
+  // Observe Engine.IO packets for heartbeat/latency monitoring (Socket.IO v4+)
+  const engine = socket.io.engine;
+
+  engine.on('packet', (packet) => {
+    if (packet.type === 'ping') {
+      lastPingTime = Date.now();
+      console.debug('[Socket] Heartbeat ping (sent)');
+    } else if (packet.type === 'pong') {
+      const latency = Date.now() - lastPingTime;
+      console.debug('[Socket] Heartbeat pong (received), latency:', latency, 'ms');
+    }
+  });
 });
 
 socket.on('disconnect', (reason) => {
@@ -44,15 +59,6 @@ socket.on('reconnect_error', (error) => {
 
 socket.on('reconnect_failed', () => {
   console.error('[Socket] Reconnection failed');
-});
-
-// Heartbeat Mechanism (Built-in to Socket.IO, but adding custom log for visibility if needed)
-socket.on('ping', () => {
-  console.debug('[Socket] Ping sent');
-});
-
-socket.on('pong', (latency) => {
-  console.debug('[Socket] Pong received, latency:', latency, 'ms');
 });
 
 export default socket;
