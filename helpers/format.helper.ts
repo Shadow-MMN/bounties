@@ -65,6 +65,7 @@ export function formatText(text: string) {
  */
 export function formatAmount(value: number): string {
   if (Number.isNaN(value)) return "-";
+  if (!Number.isFinite(value)) return "0";
   if (value >= 1000000000) {
     return (value / 1000000000).toString().replace(/\.0$/, "") + "B";
   }
@@ -85,7 +86,11 @@ export function formatAmount(value: number): string {
  * @returns The formatted percentage string
  */
 export function formatPercentage(value: number, decimals: number = 1): string {
-  return `${(value * 100).toFixed(decimals).replace(/\.0$/, "")}%`;
+  if (!Number.isFinite(value)) return "-";
+  const safeDecimals = Number.isFinite(decimals)
+    ? Math.min(20, Math.max(0, Math.floor(decimals)))
+    : 1;
+  return `${(value * 100).toFixed(safeDecimals).replace(/\.0$/, "")}%`;
 }
 
 /**
@@ -143,9 +148,11 @@ export function formatDate(
  * @returns The formatted duration string
  */
 export function formatDuration(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
+  if (!Number.isFinite(seconds) || seconds <= 0) return "0s";
+  const total = Math.floor(seconds)
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = Math.floor(total % 60);
 
   const parts = [];
   if (h > 0) parts.push(`${h}h`);
@@ -167,25 +174,31 @@ export function formatTimeAgo(date: Date | string | number): string {
   const seconds = Math.floor((now.getTime() - d.getTime()) / 1000);
 
   let interval = seconds / 31536000;
-  if (interval > 1) {
-    return Math.floor(interval) + " years ago";
+  if (interval >= 1) {
+    const count = Math.floor(interval);
+    return count + (count === 1 ? " year ago" : " years ago");
   }
   interval = seconds / 2592000;
-  if (interval > 1) {
-    return Math.floor(interval) + " months ago";
+  if (interval >= 1) {
+    const count = Math.floor(interval);
+    return count + (count === 1 ? " month ago" : " months ago");
   }
   interval = seconds / 86400;
-  if (interval > 1) {
-    return Math.floor(interval) + " days ago";
+  if (interval >= 1) {
+    const count = Math.floor(interval);
+    return count + (count === 1 ? " day ago" : " days ago");
   }
   interval = seconds / 3600;
-  if (interval > 1) {
-    return Math.floor(interval) + " hours ago";
+  if (interval >= 1) {
+    const count = Math.floor(interval);
+    return count + (count === 1 ? " hour ago" : " hours ago");
   }
   interval = seconds / 60;
-  if (interval > 1) {
-    return Math.floor(interval) + " minutes ago";
+  if (interval >= 1) {
+    const count = Math.floor(interval);
+    return count + (count === 1 ? " minute ago" : " minutes ago");
   }
+  if (Math.floor(seconds) === 0) return "just now";
   return Math.floor(seconds) + " seconds ago";
 }
 
@@ -213,6 +226,7 @@ export function slugify(text: string): string {
  * @returns The truncated text
  */
 export function truncate(text: string, length: number): string {
+  if (length <= 3) return text.slice(0, length)
   if (text.length <= length) return text;
   return text.slice(0, length - 3) + "...";
 }
