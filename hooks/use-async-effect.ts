@@ -12,12 +12,16 @@ export function useAsyncEffect(
     deps: React.DependencyList
 ) {
     React.useEffect(() => {
-        let cleanup: void | (() => void | undefined)
         let mounted = true
+        const cleanupRef = { current: undefined as void | (() => void | undefined) }
 
         const run = async () => {
-            if (mounted) {
-                cleanup = await effect()
+            const cleanup = await effect()
+            // Store cleanup in ref so it can be called even if component unmounts
+            cleanupRef.current = cleanup
+            // If we unmounted while waiting, call cleanup immediately
+            if (!mounted && cleanup && typeof cleanup === "function") {
+                cleanup()
             }
         }
 
@@ -25,8 +29,8 @@ export function useAsyncEffect(
 
         return () => {
             mounted = false
-            if (cleanup && typeof cleanup === "function") {
-                cleanup()
+            if (cleanupRef.current && typeof cleanupRef.current === "function") {
+                cleanupRef.current()
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
