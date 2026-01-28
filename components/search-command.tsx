@@ -38,6 +38,16 @@ export function SearchCommand() {
         clearRecentSearches
     } = useBountySearch()
 
+    // Platform detection for keyboard shortcut
+    const [modifierKey, setModifierKey] = React.useState<string>("⌘")
+
+    React.useEffect(() => {
+        // Simple check for Mac vs others
+        if (typeof navigator !== 'undefined' && !/Mac|iPod|iPhone|iPad/.test(navigator.userAgent)) {
+            setModifierKey("Ctrl")
+        }
+    }, [])
+
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
             if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -74,7 +84,7 @@ export function SearchCommand() {
                 <span className="hidden lg:inline-flex">Search bounties...</span>
                 <span className="inline-flex lg:hidden">Search...</span>
                 <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                    <span className="text-xs">⌘</span>K
+                    <span className="text-xs">{modifierKey}</span>K
                 </kbd>
             </Button>
             <CommandDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -96,15 +106,17 @@ export function SearchCommand() {
                                 >
                                     <Clock className="mr-2 h-4 w-4" />
                                     <span>{term}</span>
-                                    <div
-                                        className="ml-auto flex h-4 w-4 items-center justify-center rounded-sm hover:bg-muted"
+                                    <button
+                                        type="button"
+                                        className="ml-auto flex h-4 w-4 items-center justify-center rounded-sm hover:bg-white/20 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-white/50"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             removeRecentSearch(term);
                                         }}
+                                        aria-label={`Remove recent search ${term}`}
                                     >
                                         <X className="h-3 w-3" />
-                                    </div>
+                                    </button>
                                 </CommandItem>
                             ))}
                             <CommandItem onSelect={clearRecentSearches} className="text-xs text-muted-foreground justify-center">
