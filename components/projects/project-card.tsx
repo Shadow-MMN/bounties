@@ -13,7 +13,7 @@ export function ProjectCard({ project }: { project: Project }) {
       className="group focus:outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] rounded-xl"
       aria-label={`View project ${project.name}`}
     >
-      <Card className="h-full overflow-hidden bg-[#0A0C0D] border-gray-800 transition-all duration-300 group-hover:border-gray-700 group-hover:shadow-2xl group-hover:shadow-green-500/10 py-0">
+      <Card className="h-full overflow-hidden transition-all duration-300 group-hover:border-gray-700 group-hover:shadow-2xl group-hover:shadow-green-500/10 py-0">
         <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-[#0D1A1E] to-[#0A1214] flex items-center justify-center p-6 border-b border-white/5">
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
             {project.tags.slice(0, 3).map((tag) => (
@@ -79,10 +79,10 @@ export function ProjectCard({ project }: { project: Project }) {
         <CardContent className="p-0">
           <div className="p-4 pt-5 space-y-4">
             <div className="space-y-1.5">
-              <h3 className="text-lg font-bold text-white tracking-tight leading-tight group-hover:text-green-400 transition-colors">
+              <h3 className="text-lg font-bold  tracking-tight leading-tight group-hover:text-green-400 transition-colors">
                 {project.name}
               </h3>
-              <p className="text-sm text-white/50 line-clamp-2 leading-relaxed font-medium">
+              <p className="text-sm line-clamp-2 leading-relaxed font-medium">
                 {project.description}
               </p>
             </div>
@@ -94,14 +94,14 @@ export function ProjectCard({ project }: { project: Project }) {
               <span className="text-lg font-bold text-green-400">
                 {project.prizeAmount}
               </span>
-              <span className="text-[10px] text-white/40 uppercase tracking-wider font-bold">
+              <span className="text-[10px] uppercase tracking-wider font-bold">
                 Prize Pool
               </span>
             </div>
           </div>
 
           {/* Footer Section */}
-          <div className="border-t border-white/5 px-4 py-3 bg-[#0D0F10]/50">
+          <div className="border-t border-white/5 px-4 py-3 bg-[#0D0F10]">
             <div className="flex items-center justify-between">
               <span className="text-xs text-white/40 font-semibold uppercase tracking-widest">
                 {project.status}

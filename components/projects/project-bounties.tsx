@@ -80,11 +80,11 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold text-gray-50">Available Bounties</h2>
+        <h2 className="text-2xl font-bold">Available Bounties</h2>
         {hasFilters && (
           <button
             onClick={clearFilters}
-            className="text-sm text-primary hover:text-primary/80 transition-colors self-start sm:self-auto"
+            className="text-sm text-primary hover:underline self-start sm:self-auto"
           >
             Clear filters
           </button>
@@ -95,7 +95,7 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
       <div className="space-y-4">
         {/* Type Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-400">Type</label>
+          <label className="text-sm font-medium">Type</label>
           <div className="flex flex-wrap gap-2">
             {bountyTypes.map((type) => (
               <Badge
@@ -103,7 +103,7 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
                 asChild
                 variant="outline"
                 className={cn(
-                  "cursor-pointer transition-all border-gray-700 text-gray-300 hover:border-primary hover:text-primary",
+                  "cursor-pointer transition-all",
                   selectedType === type.value && "bg-primary text-primary-foreground border-primary"
                 )}
               >
@@ -121,7 +121,7 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
 
         {/* Difficulty Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-400">Difficulty</label>
+          <label className="text-sm font-medium">Difficulty</label>
           <div className="flex flex-wrap gap-2">
             {difficulties.map((difficulty) => (
               <Badge
@@ -129,7 +129,7 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
                 asChild
                 variant="outline"
                 className={cn(
-                  "cursor-pointer transition-all border-gray-700 text-gray-300 hover:border-primary hover:text-primary",
+                  "cursor-pointer transition-all",
                   selectedDifficulty === difficulty.value && "bg-primary text-primary-foreground border-primary"
                 )}
               >
@@ -147,7 +147,7 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
 
         {/* Status Filter */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-400">Status</label>
+          <label className="text-sm font-medium">Status</label>
           <div className="flex flex-wrap gap-2">
             {statuses.map((status) => (
               <Badge
@@ -155,7 +155,7 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
                 asChild
                 variant="outline"
                 className={cn(
-                  "cursor-pointer transition-all border-gray-700 text-gray-300 hover:border-primary hover:text-primary",
+                  "cursor-pointer transition-all",
                   selectedStatus === status.value && "bg-primary text-primary-foreground border-primary"
                 )}
               >
@@ -174,7 +174,7 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
         {/* Tags Filter */}
         {availableTags.length > 0 && (
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Tags</label>
+            <label className="text-sm font-medium">Tags</label>
             <div className="flex flex-wrap gap-2">
               {availableTags.map((tag) => (
                 <Badge
@@ -182,7 +182,7 @@ export function ProjectBounties({ projectId }: ProjectBountiesProps) {
                   asChild
                   variant="outline"
                   className={cn(
-                    "cursor-pointer transition-all border-gray-700 text-gray-300 hover:border-primary hover:text-primary",
+                    "cursor-pointer transition-all",
                     selectedTags.includes(tag) && "bg-primary text-primary-foreground border-primary"
                   )}
                 >

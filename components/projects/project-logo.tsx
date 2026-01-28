@@ -22,7 +22,7 @@ export function ProjectLogo({
   return (
     <Avatar className={cn("size-10 rounded-md", className)}>
       {logoUrl ? <AvatarImage src={logoUrl} alt={name} /> : null}
-      <AvatarFallback className="rounded-md bg-gray-900 text-gray-200 border border-gray-800">
+      <AvatarFallback className="rounded-md border border-neutral-200 dark:border-neutral-700">
         <span className="text-xs font-semibold">{getInitials(name)}</span>
       </AvatarFallback>
     </Avatar>

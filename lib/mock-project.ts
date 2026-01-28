@@ -4,7 +4,7 @@ export const mockProjects: Project[] = [
   {
     id: "boundless",
     name: "Boundless",
-    logoUrl: "/logo.svg",
+    logoUrl: "/logo-icon.png",
     websiteUrl: "https://www.boundlessfi.xyz",
     description:
       "Boundless is building a better way to ship open-source work with transparent funding, milestone-based payouts, and community validation.",
@@ -37,7 +37,7 @@ export const mockProjects: Project[] = [
   {
     id: "nivo-ui-stellar-build",
     name: "NivoUI Stellar Build Hackathon",
-    logoUrl: null,
+    logoUrl: "/logo-icon.png",
     description: "From idea to on-chain in hours, not weeks.",
     tags: ["Infrastructure", "DeFi", "Privacy"],
     bountyCount: 8,
@@ -54,7 +54,7 @@ export const mockProjects: Project[] = [
   {
     id: "soroban-kit",
     name: "Soroban Kit",
-    logoUrl: null,
+    logoUrl: "/logo-icon.png",
     websiteUrl: "https://soroban-kit.dev",
     description:
       "Utilities, templates, and SDK helpers for building Soroban apps. Includes testing harnesses, example contracts, and deployment workflows.",
@@ -81,7 +81,7 @@ export const mockProjects: Project[] = [
   {
     id: "stellar-privacy-lab",
     name: "Stellar Privacy Lab",
-    logoUrl: null,
+    logoUrl: "/logo-icon.png",
     websiteUrl: "https://privacy.stellar.org",
     description:
       "Research and prototypes focused on privacy-preserving primitives and integrations for Stellar—bringing safer defaults to on-chain apps.",

@@ -78,12 +78,12 @@ export function SearchCommand() {
         <>
             <Button
                 variant="outline"
-                className="relative h-9 w-full justify-start text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64"
+                className="relative h-9 w-full justify-start text-sm sm:pr-12 md:w-40 lg:w-64 text-foreground"
                 onClick={() => setIsOpen(true)}
             >
                 <span className="hidden lg:inline-flex">Search bounties...</span>
-                <span className="inline-flex lg:hidden">Search...</span>
-                <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                <span className="inline-flex lg:hidden">Search...</span>    
+                <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-6 select-none items-center gap-1 rounded border border-muted bg-muted text-muted-foreground px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
                     <span className="text-xs">{modifierKey}</span>K
                 </kbd>
             </Button>
@@ -108,7 +108,7 @@ export function SearchCommand() {
                                     <span>{term}</span>
                                     <button
                                         type="button"
-                                        className="ml-auto flex h-4 w-4 items-center justify-center rounded-sm hover:bg-white/20 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-white/50"
+                                        className="ml-auto flex h-4 w-4 items-center justify-center rounded-sm hover:bg-gray-200 opacity-70 hover:opacity-100 focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-gray-400"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             removeRecentSearch(term);
@@ -143,7 +143,7 @@ export function SearchCommand() {
                                         <FileText className="mr-2 h-4 w-4" />
                                         <div className="flex flex-col">
                                             <span>{bounty.issueTitle}</span>
-                                            <span className="text-xs text-muted-foreground">{bounty.projectName} • {bounty.status}</span>
+                                            <span className="text-xs text-gray-500">{bounty.projectName} • {bounty.status}</span>
                                         </div>
                                         {bounty.rewardAmount && (
                                             <Badge variant="secondary" className="ml-auto">

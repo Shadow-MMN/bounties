@@ -13,7 +13,7 @@ export function ProjectMaintainers({ maintainers }: ProjectMaintainersProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-sm font-medium text-gray-400">Maintainers</h3>
+      <h3 className="text-sm font-medium">Maintainers</h3>
       <div className="flex flex-wrap gap-3">
         {maintainers.map((maintainer) => {
           const content = (
@@ -24,7 +24,7 @@ export function ProjectMaintainers({ maintainers }: ProjectMaintainersProps) {
                   {maintainer.username.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm text-gray-300 group-hover/maintainer:text-primary transition-colors">
+              <span className="text-sm group-hover/maintainer:text-primary transition-colors">
                 @{maintainer.username}
               </span>
             </div>

@@ -50,13 +50,13 @@ export function BountyHeader({ bounty }: BountyHeaderProps) {
       </div>
 
       <div className="space-y-4">
-        <h1 className="text-3xl font-extrabold text-foreground tracking-tight sm:text-4xl md:text-5xl leading-tight">
+        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl leading-tight">
           {bounty.issueTitle}
         </h1>
 
         <div className="flex items-center gap-3">
           {bounty.projectLogoUrl ? (
-            <div className="relative size-6 shrink-0 overflow-hidden rounded bg-gray-800">
+            <div className="relative size-6 shrink-0 overflow-hidden rounded bg-black">
               <Image
                 src={bounty.projectLogoUrl}
                 alt={bounty.projectName}
@@ -65,35 +65,35 @@ export function BountyHeader({ bounty }: BountyHeaderProps) {
               />
             </div>
           ) : (
-            <div className="size-6 shrink-0 rounded bg-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-400">
+            <div className="size-6 shrink-0 rounded bg-black flex items-center justify-center text-[10px] font-bold text-gray-400">
               {bounty.projectName.substring(0, 2).toUpperCase()}
             </div>
           )}
-          <span className="text-sm font-medium text-muted-foreground">{bounty.projectName}</span>
+          <span className="text-sm font-medium">{bounty.projectName}</span>
         </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-6 pt-2">
         {(bounty.rewardAmount !== null && bounty.rewardAmount !== undefined) ? (
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Reward</span>
+            <span className="text-xs font-semibold uppercase tracking-widest">Reward</span>
             <div className="flex items-baseline gap-1.5">
               <span className="text-3xl font-bold text-primary tabular-nums tracking-tight">
                 {bounty.rewardAmount.toLocaleString()}
               </span>
-              <span className="text-sm font-medium text-gray-400">{bounty.rewardCurrency}</span>
+              <span className="text-sm font-medium">{bounty.rewardCurrency}</span>
             </div>
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Reward</span>
+            <span className="text-xs font-semibold uppercase tracking-widest">Reward</span>
             <span className="text-lg font-medium text-gray-400">-</span>
           </div>
         )}
 
         {bounty.difficulty && (
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Difficulty</span>
+            <span className="text-xs font-semibold uppercase tracking-widest">Difficulty</span>
             <Badge variant="outline" className={cn("w-fit capitalize border-opacity-30", difficultyInfo.className)}>
               {difficultyInfo.label}
             </Badge>

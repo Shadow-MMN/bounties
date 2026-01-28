@@ -34,9 +34,9 @@ export default async function BountyPage({ params }: BountyPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background-main-bg text-gray-50 relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Background ambient glow */}
-      <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      <div className="fixed top-0 right-0 w-125 h-125 bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <div className="container mx-auto max-w-7xl px-4 py-12 relative z-10">
         {/* Breadcrumb or Back Link could go here */}

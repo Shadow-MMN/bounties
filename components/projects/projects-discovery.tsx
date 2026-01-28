@@ -90,17 +90,17 @@ export function ProjectsDiscovery({
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-green-500/30">
+    <div className="min-h-screen font-sans selection:bg-green-500/30">
       <div className="container mx-auto max-w-7xl px-4 py-12 space-y-16">
         {/* Hero Section */}
         <section className="relative overflow-hidden rounded-[32px] bg-[#0A0C0D] border border-white/5 p-8 md:p-16">
           <div className="relative z-10 max-w-2xl space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.1]">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-[1.1]">
                 <span className="text-[#39FF14]">Discover projects</span> that
                 are shaping the future on Stellar
               </h1>
-              <p className="text-white/50 text-lg font-medium max-w-md leading-relaxed">
+              <p className="text-white italic text-lg font-medium max-w-md leading-relaxed">
                 Validated by the community. Backed milestone by milestone.
               </p>
             </div>
@@ -122,7 +122,7 @@ export function ProjectsDiscovery({
 
         <div className="space-y-10">
           <header className="flex flex-col md:flex-row md:items-end justify-between items-start gap-6">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
               Explore Boundless Projects
             </h2>
           </header>
@@ -157,7 +157,7 @@ export function ProjectsDiscovery({
               {showClear ? (
                 <Button
                   variant="outline"
-                  className="h-12 bg-transparent border-white/10 rounded-xl text-white/80 font-medium px-4 hover:bg-white/5"
+                  className="h-12  rounded-xl text-white/80 font-medium px-4 hover:bg-white/5"
                   onClick={clearAll}
                 >
                   <X className="size-4" />
@@ -196,7 +196,7 @@ export function ProjectsDiscovery({
                 type="multiple"
                 value={selectedTags}
                 onValueChange={(v) => setSelectedTags(v)}
-                className="flex w-max gap-2 py-1"
+                className="flex w-max py-1"
               >
                 {allTags.map((tag) => (
                   <ToggleGroupItem
@@ -204,7 +204,7 @@ export function ProjectsDiscovery({
                     value={tag}
                     variant="outline"
                     size="sm"
-                    className="border-white/10 text-white/80 data-[state=on]:bg-white/10 data-[state=on]:text-white"
+                    className="border  data-[state=on]:bg-white/10 data-[state=on]:text-white"
                   >
                     {tag}
                   </ToggleGroupItem>
@@ -216,12 +216,12 @@ export function ProjectsDiscovery({
           {/* Grid Section */}
           <section className="pt-4">
             {filtered.length === 0 ? (
-              <Empty className="border-white/5 bg-[#0A0C0D] rounded-3xl py-20 px-4">
+              <Empty className="border-white/5 rounded-3xl py-20 px-4">
                 <EmptyHeader>
-                  <EmptyTitle className="text-white">
+                  <EmptyTitle className="">
                     No projects found
                   </EmptyTitle>
-                  <EmptyDescription className="text-white/40">
+                  <EmptyDescription className="">
                     Try adjusting your filters or search terms to find what
                     you&apos;re looking for.
                   </EmptyDescription>
