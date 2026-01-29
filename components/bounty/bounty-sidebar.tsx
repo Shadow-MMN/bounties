@@ -9,6 +9,7 @@ import { formatDistanceToNow } from "date-fns"
 // import { cn } from "@/lib/utils"
 // import { useRouter } from "next/navigation" // If we need refresh
 import { ApplicationDialog } from "./application-dialog"
+import { toast } from "sonner"
 
 interface BountySidebarProps {
   bounty: Bounty
@@ -58,16 +59,17 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
       if (!res.ok) {
         const error = await res.json()
         alert(error.error || 'Action failed')
-        return
+        return false
       }
 
-      // Success - ideally show toast and refresh status
-      alert('Success!')
+      toast('Action completed successfully')
       window.location.reload()
+      return true
 
     } catch (error) {
       console.error('Action error:', error)
       alert('Something went wrong')
+      return false
     } finally {
       setLoading(false)
     }
@@ -97,7 +99,7 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
             </Button>
           }
           onApply={async (data) => {
-            await handleAction(`/api/bounties/${bounty.id}/apply`, { ...data, applicantId: CURRENT_USER_ID })
+            return await handleAction(`/api/bounties/${bounty.id}/apply`, { ...data, applicantId: CURRENT_USER_ID })
           }}
         />
       )

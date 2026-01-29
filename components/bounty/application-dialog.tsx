@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 interface ApplicationDialogProps {
     bountyId: string
     bountyTitle: string
-    onApply: (data: { coverLetter: string, portfolioUrl?: string }) => Promise<void>
+    onApply: (data: { coverLetter: string, portfolioUrl?: string }) => Promise<boolean>
     trigger: React.ReactNode
 }
 
@@ -24,8 +24,10 @@ export function ApplicationDialog({ bountyTitle, onApply, trigger }: Application
         e.preventDefault()
         setLoading(true)
         try {
-            await onApply({ coverLetter, portfolioUrl })
-            setOpen(false)
+            const success = await onApply({ coverLetter, portfolioUrl })
+            if (success) {
+                setOpen(false)
+            }
         } catch (error) {
             console.error("Failed to submit application", error)
         } finally {
