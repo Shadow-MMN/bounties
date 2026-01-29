@@ -16,7 +16,6 @@ export const leaderboardApi = {
         const params: Record<string, unknown> = {
             page: pagination.page,
             limit: pagination.limit,
-            timeframe: filters.timeframe,
         };
 
         if (filters.tier) params.tier = filters.tier;

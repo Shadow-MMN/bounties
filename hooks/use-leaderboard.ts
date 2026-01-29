@@ -47,9 +47,10 @@ export const usePrefetchLeaderboardPage = () => {
     const queryClient = useQueryClient();
 
     return (filters: LeaderboardFilters, page: number, limit: number) => {
-        queryClient.prefetchQuery({
+        queryClient.prefetchInfiniteQuery({
             queryKey: LEADERBOARD_KEYS.list(filters),
-            queryFn: () => leaderboardApi.fetchLeaderboard(filters, { page, limit }),
+            queryFn: ({ pageParam }) => leaderboardApi.fetchLeaderboard(filters, { page: pageParam as number, limit }),
+            initialPageParam: 1,
         });
     };
 };
