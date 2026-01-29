@@ -38,4 +38,5 @@ export interface MilestoneParticipation {
     status: MilestoneStatus
     joinedAt: string
     lastUpdatedAt: string
+    totalMilestones?: number // Optional override or cached value
 }

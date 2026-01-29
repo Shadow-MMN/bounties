@@ -29,17 +29,24 @@ export async function POST(
 
         const bounty = BountyStore.getBountyById(bountyId);
 
+        if (!bounty) {
+            return NextResponse.json({ error: 'Bounty not found' }, { status: 404 });
+        }
+
         let updates: Partial<typeof participation> = {
             lastUpdatedAt: new Date().toISOString()
         };
 
-        const totalMilestones = (participation as any).totalMilestones || (bounty as any).milestones?.length;
+        const totalMilestones = participation.totalMilestones || bounty.milestones?.length;
 
         if (action === 'advance') {
             if (participation.status === 'completed') {
                 return NextResponse.json({ error: 'Cannot advance completed participation' }, { status: 409 });
             }
-            if (totalMilestones && participation.currentMilestone >= totalMilestones) {
+            if (!totalMilestones) {
+                return NextResponse.json({ error: 'Cannot determine total milestones' }, { status: 500 });
+            }
+            if (participation.currentMilestone >= totalMilestones) {
                 return NextResponse.json({ error: 'Already at last milestone' }, { status: 409 });
             }
             updates.currentMilestone = participation.currentMilestone + 1;
