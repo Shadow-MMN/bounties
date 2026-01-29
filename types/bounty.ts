@@ -34,6 +34,12 @@ export interface Bounty {
   createdAt: string
   updatedAt: string
 
+  // Status & Logic fields
+  claimedAt?: string
+  claimedBy?: string // user/wallet ID
+  lastActivityAt?: string // for anti-squatting
+  claimExpiresAt?: string
+  submissionsEndDate?: string // For competitions/applications
   // Optional: Keep requirements/scope if needed for details view, 
   // but strictly adhering to User's type for now. 
   // I will add them as optional to avoid breaking existing UI logic too much if I can helper it, 

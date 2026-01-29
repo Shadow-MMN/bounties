@@ -27,6 +27,12 @@ export const bountySchema = z.object({
     status: bountyStatusSchema,
     createdAt: z.string(),
     updatedAt: z.string(),
+    claimedAt: z.string().optional(),
+    claimedBy: z.string().optional(),
+    lastActivityAt: z.string().optional(),
+    claimExpiresAt: z.string().optional(),
+    submissionsEndDate: z.string().optional(),
+
     requirements: z.array(z.string()).optional(),
     scope: z.string().optional(),
 });

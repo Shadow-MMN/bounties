@@ -7,9 +7,10 @@ import { FilterPanel } from "@/components/filters/filter-panel";
 import { ProjectCard } from "@/components/cards/project-card";
 import { BountyCard } from "@/components/cards/bounty-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { mockProjects, mockBounties } from "@/lib/mock-data";
+import { mockProjects, mockBounties as rawMockBounties } from "@/lib/mock-data";
 import { FilterState, TabType } from "@/lib/types";
 import { PackageOpen, Coins } from "lucide-react";
+import { BountyLogic } from '@/lib/logic/bounty-logic';
 
 // Validation helpers
 const isValidTab = (value: string | null): value is TabType => {
@@ -117,14 +118,14 @@ export default function DiscoverPage() {
     // Apply sort (only valid sorts for projects)
     switch (filters.sort) {
       case "newest":
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
       case "recentlyUpdated":
-        result.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+        result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
         break;
       default:
         // Fallback to newest for unsupported sort values (e.g. "highestReward")
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
 
@@ -133,7 +134,8 @@ export default function DiscoverPage() {
 
   // Filter and sort bounties
   const filteredBounties = useCallback(() => {
-    let result = [...mockBounties];
+    // Process bounties for dynamic status (e.g. expiration)
+    let result = rawMockBounties.map(b => BountyLogic.processBountyStatus(b));
 
     // Apply search filter
     if (filters.search) {
@@ -156,10 +158,10 @@ export default function DiscoverPage() {
     // Apply sort
     switch (filters.sort) {
       case "newest":
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
       case "recentlyUpdated":
-        result.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+        result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
         break;
       case "highestReward":
         result.sort((a, b) => b.reward - a.reward);
@@ -212,7 +214,7 @@ export default function DiscoverPage() {
                 <Coins className="mr-2 h-4 w-4" />
                 Bounties
                 <span className="ml-2 text-xs opacity-70">
-                  ({mockBounties.length})
+                  ({rawMockBounties.length})
                 </span>
               </TabsTrigger>
             </TabsList>

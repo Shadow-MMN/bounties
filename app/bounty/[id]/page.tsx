@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import { getBountyById } from "@/lib/mock-bounty"
 import { truncateAtWordBoundary } from "@/lib/truncate"
+import { BountyLogic } from "@/lib/logic/bounty-logic"
 import { BountyHeader } from "@/components/bounty/bounty-header"
 import { BountyContent } from "@/components/bounty/bounty-content"
 import { BountySidebar } from "@/components/bounty/bounty-sidebar"
@@ -27,7 +28,11 @@ export async function generateMetadata({ params }: BountyPageProps): Promise<Met
 
 export default async function BountyPage({ params }: BountyPageProps) {
   const { id } = await params
-  const bounty = getBountyById(id)
+  let bounty = getBountyById(id)
+
+  if (bounty) {
+    bounty = BountyLogic.processBountyStatus(bounty)
+  }
 
   if (!bounty) {
     notFound()

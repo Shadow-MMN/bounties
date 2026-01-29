@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllBounties } from '@/lib/mock-bounty';
+import { BountyLogic } from '@/lib/logic/bounty-logic';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -7,7 +8,7 @@ export async function GET(request: Request) {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    const allBounties = getAllBounties();
+    const allBounties = getAllBounties().map(b => BountyLogic.processBountyStatus(b));
 
     // Apply filters from params
     let filtered = allBounties;
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
     if (tags) {
         const tagArray = tags.split(',').filter(Boolean);
         if (tagArray.length > 0) {
-            filtered = filtered.filter(b => 
+            filtered = filtered.filter(b =>
                 tagArray.some(tag => b.tags.includes(tag))
             );
         }
