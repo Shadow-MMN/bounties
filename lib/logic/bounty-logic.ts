@@ -1,5 +1,18 @@
-import { differenceInDays, isPast, parseISO } from 'date-fns';
-import { ClaimingModel } from '@/types/bounty'; // Keep if needed for value checking, or remove if just string
+import { differenceInDays, isPast, parseISO, isValid } from 'date-fns';
+
+
+/**
+ * Interface defining the minimal fields required for status logic.
+ * Compatible with both `types/bounty.ts` and `lib/types.ts`.
+ */
+export interface StatusAwareBounty {
+    status: string;
+    claimingModel: string;
+    claimExpiresAt?: string;
+    lastActivityAt?: string;
+    claimedBy?: string;
+    claimedAt?: string;
+}
 
 export class BountyLogic {
     /**
@@ -7,21 +20,13 @@ export class BountyLogic {
      */
     static readonly INACTIVITY_THRESHOLD_DAYS = 7;
 
-
     /**
      * Processes the bounty status based on its model and timestamps.
      * - Checks for inactivity auto-release for single-claim.
      * - Checks for expired claims.
      * - Returns the potentially modified bounty (this simulates the backend update).
      */
-    static processBountyStatus<T extends {
-        status: string;
-        claimingModel: ClaimingModel;
-        claimExpiresAt?: string;
-        lastActivityAt?: string;
-        claimedBy?: string;
-        claimedAt?: string;
-    }>(bounty: T): T {
+    static processBountyStatus<T extends StatusAwareBounty>(bounty: T): T {
         if (bounty.status !== 'claimed' && bounty.status !== 'open') return bounty;
 
         const now = new Date();
@@ -33,10 +38,11 @@ export class BountyLogic {
             bounty.claimingModel === 'single-claim' &&
             bounty.status === 'claimed'
         ) {
-            // Helper to get Date object
+            // Helper to get Date object safely
             const getDate = (val?: string) => {
                 if (!val) return null;
-                return parseISO(val);
+                const date = parseISO(val);
+                return isValid(date) ? date : null;
             };
 
             const expiresAt = getDate(bounty.claimExpiresAt);
@@ -51,7 +57,7 @@ export class BountyLogic {
             }
 
             // If inactive for too long
-            const lastActive = getDate(bounty.lastActivityAt);
+            const lastActive = getDate(bounty.lastActivityAt) || getDate(bounty.claimedAt);
             if (lastActive) {
                 const daysInactive = differenceInDays(now, lastActive);
                 if (daysInactive > this.INACTIVITY_THRESHOLD_DAYS) {
@@ -70,11 +76,7 @@ export class BountyLogic {
     /**
      * Returns metadata about the claim status suitable for UI display.
      */
-    static getClaimStatusDisplay(bounty: {
-        status: string;
-        claimingModel: ClaimingModel;
-        claimExpiresAt?: string;
-    }) {
+    static getClaimStatusDisplay(bounty: StatusAwareBounty) {
         if (bounty.status === 'open') return { label: 'Available', color: 'green' };
 
         if (bounty.status === 'claimed') {
@@ -94,6 +96,8 @@ export class BountyLogic {
     }
 
     private static formatDate(dateStr: string) {
-        return new Date(dateStr).toLocaleDateString();
+        const date = parseISO(dateStr);
+        if (!isValid(date)) return 'Invalid Date';
+        return date.toLocaleDateString();
     }
 }
