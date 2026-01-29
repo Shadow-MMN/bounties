@@ -118,14 +118,14 @@ export default function DiscoverPage() {
     // Apply sort (only valid sorts for projects)
     switch (filters.sort) {
       case "newest":
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
       case "recentlyUpdated":
-        result.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+        result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
         break;
       default:
         // Fallback to newest for unsupported sort values (e.g. "highestReward")
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
 
@@ -158,10 +158,10 @@ export default function DiscoverPage() {
     // Apply sort
     switch (filters.sort) {
       case "newest":
-        result.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
       case "recentlyUpdated":
-        result.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+        result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
         break;
       case "highestReward":
         result.sort((a, b) => b.reward - a.reward);

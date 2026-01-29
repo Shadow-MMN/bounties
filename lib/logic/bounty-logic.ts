@@ -1,5 +1,5 @@
-import { Bounty, BountyStatus, ClaimingModel } from '@/types/bounty';
-import { differenceInDays, isPast, addDays, parseISO } from 'date-fns';
+import { differenceInDays, isPast, parseISO } from 'date-fns';
+import { ClaimingModel } from '@/types/bounty'; // Keep if needed for value checking, or remove if just string
 
 export class BountyLogic {
     /**
@@ -17,10 +17,10 @@ export class BountyLogic {
     static processBountyStatus<T extends {
         status: string;
         claimingModel: any;
-        claimExpiresAt?: string | Date;
-        lastActivityAt?: string | Date;
+        claimExpiresAt?: string;
+        lastActivityAt?: string;
         claimedBy?: string;
-        claimedAt?: string | Date;
+        claimedAt?: string;
     }>(bounty: T): T {
         if (bounty.status !== 'claimed' && bounty.status !== 'open') return bounty;
 
@@ -70,7 +70,11 @@ export class BountyLogic {
     /**
      * Returns metadata about the claim status suitable for UI display.
      */
-    static getClaimStatusDisplay(bounty: Bounty) {
+    static getClaimStatusDisplay(bounty: {
+        status: string;
+        claimingModel: any;
+        claimExpiresAt?: string;
+    }) {
         if (bounty.status === 'open') return { label: 'Available', color: 'green' };
 
         if (bounty.status === 'claimed') {

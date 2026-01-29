@@ -24,8 +24,8 @@ export interface Project {
   description: string;
   tags: string[];
   status: ProjectStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   creator: string;
   category: string;
   milestones?: number;
@@ -42,19 +42,19 @@ export interface Bounty {
   currency: string;
   claimingModel: "single-claim" | "application" | "competition" | "multi-winner";
   status: BountyStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   creator: string;
 
   // Status & Logic fields
-  claimedAt?: Date;
+  claimedAt?: string;
   claimedBy?: string;
-  lastActivityAt?: Date;
-  claimExpiresAt?: Date;
-  submissionsEndDate?: Date;
+  lastActivityAt?: string;
+  claimExpiresAt?: string;
+  submissionsEndDate?: string;
 
   difficulty: "beginner" | "intermediate" | "advanced";
-  deadline?: Date;
+  deadline?: string;
 }
 
 // Available tags
