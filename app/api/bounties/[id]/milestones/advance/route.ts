@@ -33,7 +33,7 @@ export async function POST(
             return NextResponse.json({ error: 'Bounty not found' }, { status: 404 });
         }
 
-        let updates: Partial<typeof participation> = {
+        const updates: Partial<typeof participation> = {
             lastUpdatedAt: new Date().toISOString()
         };
 
