@@ -40,16 +40,6 @@ export interface Bounty {
   lastActivityAt?: string // for anti-squatting
   claimExpiresAt?: string
   submissionsEndDate?: string // For competitions/applications
-  // Optional: Keep requirements/scope if needed for details view, 
-  // but strictly adhering to User's type for now. 
-  // I will add them as optional to avoid breaking existing UI logic too much if I can helper it, 
-  // or I will just map them in components if they are not in the type.
-  // The user said "Expected Data Types", implying this is the shape.
-  // I will add requirements and scope as optional extra fields if they were used in the UI, 
-  // or I will assume the description contains them or they are not part of this specific list view type.
-  // Existing code uses `requirements` and `scope`. I should probably keep them as optional to avoid losing data in the details view if possible,
-  // or I'll have to remove that UI section. 
-  // Let's add them as optional to be safe and backward compatible with existing components.
   requirements?: string[]
   scope?: string
   milestones?: unknown[] // Optional milestone definition
