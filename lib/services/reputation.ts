@@ -1,8 +1,6 @@
 import {
     ContributorReputation,
     ReputationTier,
-    ReputationBreakdown,
-    BountyStats
 } from "@/types/reputation";
 
 // Mock Data Store (In-memory for prototype)
