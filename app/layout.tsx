@@ -5,6 +5,7 @@ import { QueryProvider } from "@/providers/query-provider";
 // replaced with resizable global navbar
 import GlobalResizableNavbar from "@/components/ui/global-resizable-navbar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { GlobalNavbar } from "@/components/global-navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,8 @@ export default function RootLayout({
         >
           <QueryProvider>
             <div suppressHydrationWarning>
-              <GlobalResizableNavbar />
+              {/* <GlobalResizableNavbar /> */}
+              <GlobalNavbar />
               {children}
             </div>
           </QueryProvider>
