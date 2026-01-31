@@ -32,7 +32,8 @@ export const RatingModal: React.FC<RatingModalProps> = ({ contributor, bounty, o
     try {
       await onSubmit(rating, feedback);
       setSuccess(true);
-    } catch (e) {
+    } catch (err) {
+      console.error(err)
       setError('Failed to submit rating. Please try again.');
     } finally {
       setLoading(false);
@@ -43,7 +44,7 @@ export const RatingModal: React.FC<RatingModalProps> = ({ contributor, bounty, o
     return (
       <div className="modal">
         <h2>Success!</h2>
-        <p>Rating submitted. Contributor's reputation updated.</p>
+        <p>Rating submitted. Contributor reputation updated.</p>
         <button onClick={onClose}>Close</button>
       </div>
     );

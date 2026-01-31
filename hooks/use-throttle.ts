@@ -12,11 +12,15 @@ import * as React from "react"
  */
 export function useThrottle<T>(value: T, limit: number): T {
     const [throttledValue, setThrottledValue] = React.useState<T>(value)
-    const lastRan = React.useRef<number>(Date.now())
+    const lastRan = React.useRef<number>(0)
 
 
     React.useEffect(() => {
         const now = Date.now()
+
+        if (lastRan.current === 0) {
+            lastRan.current = now
+        }
 
         if (now - lastRan.current >= limit) {
             setThrottledValue(value)

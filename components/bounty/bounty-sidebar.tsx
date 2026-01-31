@@ -98,7 +98,7 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
     }, 1000)
   }
 
-  const handleSubmitRating = async (rating: number, feedback: string) => {
+  const handleSubmitRating = async (rating: number, _feedback: string) => {
     if (hasRated) {
       alert('You have already rated this contributor.');
       return;
