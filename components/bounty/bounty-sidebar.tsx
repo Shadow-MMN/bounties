@@ -98,7 +98,7 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
     }, 1000)
   }
 
-  const handleSubmitRating = async (rating: number, _feedback: string) => {
+  const handleSubmitRating = async (rating: number, feedback: string) => {
     if (hasRated) {
       alert('You have already rated this contributor.');
       return;
@@ -113,6 +113,8 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
     }
     // Simulate API call to reputation endpoint and calculate points
     await new Promise((res) => setTimeout(res, 1000))
+    // Use feedback variable to avoid unused variable lint warnings
+    void feedback
     setLastRating(rating)
     setReputationGain(rating * 10)
     setHasRated(true)

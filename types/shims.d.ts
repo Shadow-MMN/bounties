@@ -4,10 +4,9 @@ declare module "@tabler/icons-react" {
   export const IconX: React.FC<React.SVGProps<SVGSVGElement>>
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module "motion/react" {
   import { RefObject } from 'react'
-
-  import * as React from 'react'
 
   // Relaxed typing for motion to avoid build-time type issues in environments
   // where `motion/react` types are not available. Using `any` here is a small
