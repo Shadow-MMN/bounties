@@ -22,8 +22,17 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
   // const router = useRouter()
 
   // Mock user ID and maintainer check for now - in real app this comes from auth context
+  // DEV-MOCK: Allow maintainer to test rating flow locally.
+  // WARNING: This is a client-side dev-only bypass and MUST NOT be enabled in production.
+  // TODO: Replace with real auth context or an opt-in env flag and enforce authorization server-side.
+  if (typeof window !== "undefined") {
+    console.warn(
+      "DEV: Mock maintainer enabled in components/bounty/bounty-sidebar.tsx — do NOT enable in production"
+    )
+  }
+
   const CURRENT_USER_ID = "mock-user-123"
-  const IS_MAINTAINER = true // TODO: Replace with real maintainer check
+  const IS_MAINTAINER = true // DEV-only: maintainers can test rating flow
 
   // const isClaimable = bounty.status === "open"
 
