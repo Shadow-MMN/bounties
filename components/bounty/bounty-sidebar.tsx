@@ -83,7 +83,7 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
         closed: 'Bounty Closed'
       }
       return (
-        <Button disabled className="w-full gap-2 bg-gray-800 text-gray-400 cursor-not-allowed">
+        <Button disabled className="w-full gap-2  cursor-not-allowed">
           {labels[bounty.status] || 'Not Available'}
         </Button>
       )
@@ -92,7 +92,7 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
     // Check participation
     if (bounty.claimingModel === 'application' && bounty.applicants?.includes(CURRENT_USER_ID)) {
       return (
-        <Button disabled className="w-full gap-2 bg-gray-800 text-gray-400 cursor-not-allowed">
+        <Button disabled className="w-full gap-2 cursor-not-allowed">
           Application Submitted
         </Button>
       )
@@ -100,7 +100,7 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
 
     if (bounty.claimingModel === 'competition' && bounty.competitors?.includes(CURRENT_USER_ID)) {
       return (
-        <Button disabled className="w-full gap-2 bg-gray-800 text-gray-400 cursor-not-allowed">
+        <Button disabled className="w-full gap-2  cursor-not-allowed">
           Already Joined
         </Button>
       )
@@ -108,7 +108,7 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
 
     if (bounty.claimingModel === 'milestone' && bounty.members?.includes(CURRENT_USER_ID)) {
       return (
-        <Button disabled className="w-full gap-2 bg-gray-800 text-gray-400 cursor-not-allowed">
+        <Button disabled className="w-full gap-2 cursor-not-allowed">
           Already Joined
         </Button>
       )
@@ -180,15 +180,15 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
         href={`https://github.com/${bounty.githubRepo}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+        className="flex items-center gap-2 text-sm transition-colors"
       >
         <Github className="size-4" />
         View Repository
       </a>
 
-      <Separator className="bg-gray-800" />
+      <Separator className="" />
 
-      <div className="space-y-2 text-sm text-gray-500">
+      <div className="space-y-2 text-sm">
         <div className="flex items-center gap-2">
           <Calendar className="size-4" />
           <span>Created {createdTimeAgo}</span>
@@ -199,10 +199,10 @@ export function BountySidebar({ bounty }: BountySidebarProps) {
         </div>
       </div>
 
-      <Separator className="bg-gray-800" />
+      <Separator className="" />
 
       <Button
-        className="w-full gap-2 bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-700 hover:text-gray-100"
+        className="w-full gap-2 border border-gray-700"
         onClick={handleCopyLink}
       >
         {copied ? <Check className="size-4 text-success-400" /> : <Link2 className="size-4" />}

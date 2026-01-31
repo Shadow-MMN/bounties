@@ -31,7 +31,6 @@ export default function BountiesPage() {
   const { data, isLoading, isError, error, refetch } = useBounties();
   const allBounties = useMemo(() => data?.data ?? [], [data?.data]);
 
-  // Derived lists for filters
   const projects = useMemo(
     () => Array.from(new Set(allBounties.map((b) => b.projectName))).sort(),
     [allBounties],
@@ -180,10 +179,10 @@ export default function BountiesPage() {
   return (
     <div className="min-h-screen  text-foreground pb-20 relative overflow-hidden">
       {/* Background ambient glow */}
-
+      <div className="fixed top-0 left-0 w-full h-125 bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 pointer-events-none" />
 
       <div className="container mx-auto px-4 py-12 relative z-10">
-        <header className="mb-10 text-center lg:text-left border-b border-gray-800/50 pb-8">
+        <header className="mb-10 text-center lg:text-left border-b pb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
             Explore <span className="text-primary">Bounties</span>
           </h1>
@@ -194,12 +193,11 @@ export default function BountiesPage() {
         </header>
 
         <div className="flex flex-col lg:flex-row gap-10">
-          {/* Filters Sidebar */}
-          <aside className="w-full lg:w-[280px] shrink-0 space-y-8">
+          <aside className="w-full lg:w-70 shrink-0 space-y-8">
             <div className="lg:sticky lg:top-24 space-y-6">
               <div className="p-5 rounded-xl border border-gray-800 bg-background-card backdrop-blur-xl shadow-sm">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+                  <h2 className="text-sm font-bold uppercase tracking-wider  flex items-center gap-2">
                     <Filter className="size-4" /> Filters
                   </h2>
                   {(searchQuery ||
@@ -224,11 +222,11 @@ export default function BountiesPage() {
                 <div className="space-y-6">
                   {/* Search */}
                   <div className="space-y-2">
-                    <Label className="text-xs font-medium text-gray-400">
+                    <Label className="text-xs font-medium">
                       Search
                     </Label>
                     <div className="relative group">
-                      <Search className="absolute left-3 top-2.5 size-4 text-gray-500 group-focus-within:text-primary transition-colors" />
+                      <Search className="absolute left-3 top-2.5 size-4  group-focus-within:text-primary transition-colors" />
                       <Input
                         placeholder="Keywords, tags..."
                         className="pl-9 h-9 text-sm"
@@ -274,7 +272,7 @@ export default function BountiesPage() {
                     className="w-full"
                   >
                     <AccordionItem value="type" className="border-none">
-                      <AccordionTrigger className="text-xs font-medium  hover:no-underline hover:text-gray-200">
+                      <AccordionTrigger className="text-xs font-medium  hover:no-underline">
                         BOUNTY TYPE
                       </AccordionTrigger>
                       <AccordionContent>
@@ -292,7 +290,7 @@ export default function BountiesPage() {
                               />
                               <Label
                                 htmlFor={`type-${type}`}
-                                className="text-sm font-normal text-gray-400 capitalize cursor-pointer group-hover:text-gray-200 transition-colors"
+                                className="text-sm font-normal capitalize cursor-pointer transition-colors"
                               >
                                 {type}
                               </Label>
@@ -307,7 +305,7 @@ export default function BountiesPage() {
                       value="difficulty"
                       className="border-none mt-2"
                     >
-                      <AccordionTrigger className="text-xs font-medium  hover:no-underline hover:text-gray-200">
+                      <AccordionTrigger className="text-xs font-medium  hover:no-underline ">
                         DIFFICULTY
                       </AccordionTrigger>
                       <AccordionContent>
@@ -325,7 +323,7 @@ export default function BountiesPage() {
                               />
                               <Label
                                 htmlFor={`diff-${diff}`}
-                                className="text-sm font-normal text-gray-400 capitalize cursor-pointer group-hover:text-gray-200 transition-colors"
+                                className="text-sm font-normal cursor-pointer  transition-colors"
                               >
                                 {diff}
                               </Label>
@@ -337,7 +335,7 @@ export default function BountiesPage() {
 
                     {/* Project */}
                     <AccordionItem value="project" className="border-none mt-2">
-                      <AccordionTrigger className="text-xs font-medium  hover:no-underline hover:text-gray-200">
+                      <AccordionTrigger className="text-xs font-medium  hover:no-underline ">
                         PROJECT
                       </AccordionTrigger>
                       <AccordionContent>
@@ -355,7 +353,7 @@ export default function BountiesPage() {
                               />
                               <Label
                                 htmlFor={`proj-${project}`}
-                                className="text-sm font-normal text-gray-400 capitalize cursor-pointer group-hover:text-gray-200 transition-colors truncate"
+                                className="text-sm font-normal capitalize cursor-pointer transition-colors truncate"
                                 title={project}
                               >
                                 {project}
@@ -368,7 +366,7 @@ export default function BountiesPage() {
 
                     {/* Tags */}
                     <AccordionItem value="tags" className="border-none mt-2">
-                      <AccordionTrigger className="text-xs font-medium  hover:no-underline hover:text-gray-200">
+                      <AccordionTrigger className="text-xs font-medium  hover:no-underline ">
                         TAGS
                       </AccordionTrigger>
                       <AccordionContent>
@@ -386,7 +384,7 @@ export default function BountiesPage() {
                               />
                               <Label
                                 htmlFor={`tag-${tag}`}
-                                className="text-sm font-normal text-gray-400 lowercase cursor-pointer group-hover:text-gray-200 transition-colors truncate"
+                                className="text-sm font-normal lowercase cursor-pointer transition-colors truncate"
                                 title={tag}
                               >
                                 {tag}
@@ -399,7 +397,7 @@ export default function BountiesPage() {
 
                     {/* Reward Range */}
                     <AccordionItem value="reward" className="border-none mt-2">
-                      <AccordionTrigger className="text-xs font-medium  hover:no-underline hover:text-gray-200">
+                      <AccordionTrigger className="text-xs font-medium  hover:no-underline ">
                         REWARD RANGE
                       </AccordionTrigger>
                       <AccordionContent>
@@ -414,7 +412,7 @@ export default function BountiesPage() {
                             }
                             className="my-4"
                           />
-                          <div className="flex items-center justify-between text-[10px] text-gray-500 font-medium">
+                          <div className="flex items-center justify-between text-[10px]  font-medium">
                             <span>${rewardRange[0]}</span>
                             <span>${rewardRange[1]}+</span>
                           </div>

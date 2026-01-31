@@ -3,8 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface TierBadgeProps {
-    tier: ReputationTier;
-    className?: string;
+  tier: ReputationTier;
+  className?: string;
 }
 
 export function TierBadge({ tier, className }: TierBadgeProps) {
