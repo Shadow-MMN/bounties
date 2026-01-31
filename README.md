@@ -84,25 +84,6 @@ npm run dev
 
 ---
 
-## Key Concepts
-
-### Bounty Models
-
-1. **Single Claim**: First to claim gets exclusive rights
-2. **Application**: Projects review and select from proposals
-3. **Competition**: Multiple submissions, best wins
-4. **Multi-Winner**: Milestone-based with parallel contributors
-
-### Credit System
-
-Users need credits ("Spark") to apply for bounties. Credits are earned through:
-
-- Completing bounties
-- Bi-weekly recharge
-- Participation rewards
-
-### Smart Contract Escrow
-
 All bounty budgets are locked in Soroban smart contracts until work is approved.
 
 ---
