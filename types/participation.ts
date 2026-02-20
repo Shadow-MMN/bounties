@@ -27,7 +27,7 @@ export interface Submission {
     feedback?: string
 }
 
-export type ReviewStatus = 'pending' | 'approved' | 'rejected'
+export type ReviewStatus = 'pending' | 'approved' | 'rejected' | 'revision_requested'
 
 export type ReviewSubmission = {
     submissionId: string
