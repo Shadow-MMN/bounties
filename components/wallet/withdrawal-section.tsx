@@ -25,10 +25,18 @@ import {
   useValidateWithdrawal,
   useSubmitWithdrawal,
 } from "@/hooks/use-withdrawal";
+import { toast } from "sonner";
 
 interface WithdrawalSectionProps {
   walletInfo: WalletInfo;
 }
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(amount);
+};
 
 export function WithdrawalSection({ walletInfo }: WithdrawalSectionProps) {
   const [amount, setAmount] = useState("");
@@ -40,9 +48,15 @@ export function WithdrawalSection({ walletInfo }: WithdrawalSectionProps) {
   const validateMutation = useValidateWithdrawal();
   const submitMutation = useSubmitWithdrawal();
 
-  const bankAccounts = [
-    { id: "1", name: "Chase Bank", last4: "4242", isPrimary: true },
-  ];
+  const { mutate: validate } = validateMutation;
+
+  // TODO: Replace with real bank accounts from a service/hook
+  const bankAccounts: {
+    id: string;
+    name: string;
+    last4: string;
+    isPrimary: boolean;
+  }[] = [];
 
   const parsedAmount = isNaN(parseFloat(amount)) ? 0 : parseFloat(amount);
   const isValidAmount = isFinite(parsedAmount) && parsedAmount >= 10;
@@ -64,7 +78,7 @@ export function WithdrawalSection({ walletInfo }: WithdrawalSectionProps) {
     if (parsedAmount <= 0) return;
 
     const debounceTimer = setTimeout(() => {
-      validateMutation.mutate(parsedAmount, {
+      validate(parsedAmount, {
         onSuccess: (result) => {
           if (!result.valid) {
             setValidationError(result.errors[0] || "Validation failed");
@@ -76,10 +90,10 @@ export function WithdrawalSection({ walletInfo }: WithdrawalSectionProps) {
     }, 500);
 
     return () => clearTimeout(debounceTimer);
-  }, [syncValidationError, validateMutation, parsedAmount]);
+  }, [syncValidationError, validate, parsedAmount]);
 
   const handleWithdraw = async () => {
-    if (!canWithdraw || !complianceData) return;
+    if (!canWithdraw || !complianceData || bankAccounts.length === 0) return;
 
     try {
       await submitMutation.mutateAsync({
@@ -87,22 +101,17 @@ export function WithdrawalSection({ walletInfo }: WithdrawalSectionProps) {
         currency: "USD",
         destinationId: bankAccounts[0].id,
       });
-      alert("Withdrawal submitted successfully!");
+      toast.success("Withdrawal submitted successfully!");
       setAmount("");
     } catch (error) {
-      alert((error as Error).message || "Withdrawal failed");
+      toast.error((error as Error).message || "Withdrawal failed");
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
   };
 
   const isAmountValidated =
     validateMutation.isSuccess && validateMutation.variables === parsedAmount;
+
+  const serverFee = validateMutation.data?.valid ? 2.5 : 2.5; // TODO: Use real fee from server when available
 
   const canWithdraw =
     isValidAmount &&
@@ -111,6 +120,7 @@ export function WithdrawalSection({ walletInfo }: WithdrawalSectionProps) {
     !syncValidationError &&
     !validateMutation.isPending &&
     isAmountValidated &&
+    bankAccounts.length > 0 &&
     complianceData?.compliance.holdState === "NONE" &&
     !complianceData?.termsStatus.requiresAcceptance;
 
@@ -190,29 +200,35 @@ export function WithdrawalSection({ walletInfo }: WithdrawalSectionProps) {
             <div className="space-y-2">
               <Label>Select Destination</Label>
               <div className="space-y-2">
-                {bankAccounts.map((account) => (
-                  <div
-                    key={account.id}
-                    className="flex items-center justify-between p-3 rounded-xl border border-primary bg-primary/5 cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-full bg-primary/10">
-                        <Building className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium">
-                          {account.name}
+                {bankAccounts.length > 0 ? (
+                  bankAccounts.map((account) => (
+                    <div
+                      key={account.id}
+                      className="flex items-center justify-between p-3 rounded-xl border border-primary bg-primary/5 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full bg-primary/10">
+                          <Building className="h-4 w-4 text-primary" />
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          Ending in {account.last4}
+                        <div>
+                          <div className="text-sm font-medium">
+                            {account.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Ending in {account.last4}
+                          </div>
                         </div>
                       </div>
+                      {account.isPrimary && (
+                        <Badge className="text-[10px] h-5">Primary</Badge>
+                      )}
                     </div>
-                    {account.isPrimary && (
-                      <Badge className="text-[10px] h-5">Primary</Badge>
-                    )}
+                  ))
+                ) : (
+                  <div className="p-4 border border-dashed rounded-xl text-center text-sm text-muted-foreground">
+                    No bank accounts linked
                   </div>
-                ))}
+                )}
                 <Button
                   variant="outline"
                   className="w-full border-dashed border-2 py-6 text-sm flex gap-2"
@@ -230,13 +246,15 @@ export function WithdrawalSection({ walletInfo }: WithdrawalSectionProps) {
               </div>
               <div className="flex justify-between">
                 <span>Processing Fee</span>
-                <span className="text-foreground">$2.50</span>
+                <span className="text-foreground">
+                  {formatCurrency(serverFee)}
+                </span>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between font-semibold text-foreground">
                 <span>You&apos;ll Receive</span>
                 <span>
-                  {formatCurrency(Math.max(0, (parsedAmount || 0) - 2.5))}
+                  {formatCurrency(Math.max(0, (parsedAmount || 0) - serverFee))}
                 </span>
               </div>
             </div>

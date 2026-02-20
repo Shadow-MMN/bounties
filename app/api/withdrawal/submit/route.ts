@@ -10,7 +10,23 @@ export async function POST(request: NextRequest) {
     }
 
     const { amount, currency, destinationId } = await request.json();
-    const ip = request.headers.get("x-forwarded-for") || "0.0.0.0";
+
+    // Input Validation
+    if (typeof amount !== "number" || !isFinite(amount) || amount <= 0) {
+      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+    }
+    if (!currency || typeof currency !== "string") {
+      return NextResponse.json({ error: "Invalid currency" }, { status: 400 });
+    }
+    if (!destinationId || typeof destinationId !== "string") {
+      return NextResponse.json(
+        { error: "Invalid destinationId" },
+        { status: 400 },
+      );
+    }
+
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "0.0.0.0";
 
     const withdrawal = await WithdrawalService.submit(
       user.id,
@@ -25,7 +41,7 @@ export async function POST(request: NextRequest) {
     console.error("Error submitting withdrawal:", error);
 
     let message = "Withdrawal failed";
-    let status = 400;
+    let status = 500; // Default to 500
 
     if (error instanceof Error) {
       message = error.message;
@@ -38,7 +54,6 @@ export async function POST(request: NextRequest) {
           : 500);
     } else {
       message = String(error);
-      status = 500;
     }
 
     return NextResponse.json({ error: message }, { status });

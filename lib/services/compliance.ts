@@ -80,21 +80,25 @@ export class ComplianceService {
   };
 
   /**
-   * Get user's current compliance status
-   *
-   * NOTE: This returns a shallow copy of the cached object to allow
-   * mutating methods (trackWithdrawal, resetExpiredWindows, etc.)
-   * to persist changes to the mock database.
+   * Internal accessor for mutating database records directly
+   */
+  private static getComplianceRecord(userId: string): UserCompliance {
+    if (!MOCK_COMPLIANCE_DB[userId]) {
+      MOCK_COMPLIANCE_DB[userId] = this.createDefaultCompliance(userId);
+    }
+    return MOCK_COMPLIANCE_DB[userId];
+  }
+
+  /**
+   * Get user's current compliance status (returns a deep clone for callers)
    */
   static async getUserCompliance(userId: string): Promise<UserCompliance> {
     await this.simulateDelay();
 
-    // Return existing or create new
-    if (!MOCK_COMPLIANCE_DB[userId]) {
-      MOCK_COMPLIANCE_DB[userId] = this.createDefaultCompliance(userId);
-    }
+    const record = this.getComplianceRecord(userId);
 
-    return { ...MOCK_COMPLIANCE_DB[userId] };
+    // Return a deep clone to prevent external mutation of the DB
+    return JSON.parse(JSON.stringify(record));
   }
 
   /**
@@ -129,7 +133,8 @@ export class ComplianceService {
    * Calculate remaining withdrawal amounts with rolling windows
    */
   static async getRemainingLimits(userId: string): Promise<RemainingLimits> {
-    const compliance = await this.getUserCompliance(userId);
+    // Note: We access the record directly to reset windows
+    const compliance = this.getComplianceRecord(userId);
 
     // Reset usage if windows have passed
     await this.resetExpiredWindows(userId, compliance);
@@ -213,7 +218,10 @@ export class ComplianceService {
     valid: boolean;
     exceededLimit?: "daily" | "weekly" | "monthly" | "perTransaction";
   }> {
-    const compliance = await this.getUserCompliance(userId);
+    const compliance = this.getComplianceRecord(userId);
+
+    // Reset windows before checking limits to ensure data is fresh
+    await this.resetExpiredWindows(userId, compliance);
 
     const { limits, usage } = compliance;
 
@@ -244,7 +252,7 @@ export class ComplianceService {
    * Track withdrawal usage (call after successful withdrawal)
    */
   static async trackWithdrawal(userId: string, amount: number): Promise<void> {
-    const compliance = await this.getUserCompliance(userId);
+    const compliance = this.getComplianceRecord(userId);
 
     compliance.usage.dailyUsed += amount;
     compliance.usage.weeklyUsed += amount;
@@ -259,7 +267,19 @@ export class ComplianceService {
    * Upgrade user tier after verification approval
    */
   static async upgradeTier(userId: string, newTier: KYCTier): Promise<boolean> {
-    const compliance = await this.getUserCompliance(userId);
+    const compliance = this.getComplianceRecord(userId);
+
+    const TIER_ORDER: Record<KYCTier, number> = {
+      UNVERIFIED: 0,
+      BASIC: 1,
+      VERIFIED: 2,
+      ENHANCED: 3,
+    };
+
+    // Prevent downgrades or invalid upgrades
+    if (TIER_ORDER[newTier] <= TIER_ORDER[compliance.currentTier]) {
+      throw new Error("Cannot downgrade or remain at current tier");
+    }
 
     // Update tier and limits
     compliance.currentTier = newTier;
@@ -279,7 +299,7 @@ export class ComplianceService {
     state: ComplianceHoldState,
     reason?: string,
   ): Promise<void> {
-    const compliance = await this.getUserCompliance(userId);
+    const compliance = this.getComplianceRecord(userId);
 
     compliance.holdState = state;
     compliance.holdReason = reason;
@@ -295,7 +315,7 @@ export class ComplianceService {
     userId: string,
     status: VerificationStatus,
   ): Promise<void> {
-    const compliance = await this.getUserCompliance(userId);
+    const compliance = this.getComplianceRecord(userId);
 
     compliance.verificationStatus = status;
     compliance.updatedAt = new Date().toISOString();
@@ -311,7 +331,7 @@ export class ComplianceService {
     restricted: boolean,
     jurisdictionCode?: string,
   ): Promise<void> {
-    const compliance = await this.getUserCompliance(userId);
+    const compliance = this.getComplianceRecord(userId);
 
     compliance.restrictedJurisdiction = restricted;
     compliance.jurisdictionCode = jurisdictionCode;

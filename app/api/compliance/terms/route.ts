@@ -23,7 +23,17 @@ export async function POST(request: NextRequest) {
     }
 
     const { termsVersionId } = await request.json();
-    const ip = request.headers.get("x-forwarded-for") || "0.0.0.0";
+
+    // Validate termsVersionId
+    if (!termsVersionId || typeof termsVersionId !== "string") {
+      return NextResponse.json(
+        { error: "Invalid or missing termsVersionId" },
+        { status: 400 },
+      );
+    }
+
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "0.0.0.0";
     const userAgent = request.headers.get("user-agent") || "unknown";
 
     const acceptance = await TermsService.acceptTerms(user.id, termsVersionId, {

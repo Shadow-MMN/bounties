@@ -48,11 +48,11 @@ export class GeoRestrictionService {
 
     const mockLocation: UserLocation = {
       ip,
-      countryCode: override?.countryCode || "US",
-      countryName: override?.countryName || "United States",
-      regionCode: override?.regionCode || "CA",
-      regionName: override?.regionName || "California",
-      city: override?.city || "San Francisco",
+      countryCode: override?.countryCode ?? "US",
+      countryName: override?.countryName ?? "United States",
+      regionCode: override?.regionCode ?? "CA",
+      regionName: override?.regionName ?? "California",
+      city: override?.city ?? "San Francisco",
       isVPN:
         override?.isVPN !== undefined
           ? override.isVPN
@@ -73,15 +73,15 @@ export class GeoRestrictionService {
       mockLocation.restrictionReason = countryRestriction.reason;
     }
 
-    // Check state-level restrictions
-    if (mockLocation.countryCode === "US" && mockLocation.regionCode) {
-      const stateCode = `US-${mockLocation.regionCode}`;
-      const stateRestriction = RESTRICTED.find(
-        (r) => r.code === stateCode && r.type === "STATE",
+    // Check state-level restrictions (generic support for any country)
+    if (mockLocation.regionCode) {
+      const reason = this.getRestrictionReason(
+        mockLocation.countryCode,
+        mockLocation.regionCode,
       );
-      if (stateRestriction) {
+      if (reason) {
         mockLocation.isRestricted = true;
-        mockLocation.restrictionReason = stateRestriction.reason;
+        mockLocation.restrictionReason = reason;
       }
     }
 
@@ -95,7 +95,7 @@ export class GeoRestrictionService {
      */
 
     // Mock: check against a small list of "VPN-like" public IPs (placeholder logic)
-    const vpnIps = ["8.8.8.8", "1.1.1.1"];
+    const vpnIps = ["192.0.2.1", "198.51.100.1"];
     return vpnIps.includes(ip);
   }
 

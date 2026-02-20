@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,19 @@ export function TierUpgradeDialog({
   const [uploadedDocs, setUploadedDocs] = useState<Set<DocumentType>>(
     new Set(),
   );
+
+  // Reset state when dialog opens or target tier changes
+  useEffect(() => {
+    if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStep("info");
+
+      setRequestId(null);
+
+      setUploadedDocs(new Set());
+    }
+  }, [open, targetTier]);
+
   const upgradeMutation = useUpgradeTier();
   const tierConfig = ComplianceService.getTierConfig(targetTier);
   const requiredDocs = VerificationService.getRequiredDocuments(targetTier);
@@ -73,13 +86,17 @@ export function TierUpgradeDialog({
   const handleDocumentUpload = async (type: DocumentType, file: File) => {
     if (!requestId) return;
 
-    await VerificationService.uploadDocument(requestId, {
-      type,
-      fileName: file.name,
-      file,
-    });
+    try {
+      await VerificationService.uploadDocument(requestId, {
+        type,
+        fileName: file.name,
+        file,
+      });
 
-    setUploadedDocs((prev) => new Set(prev).add(type));
+      setUploadedDocs((prev) => new Set(prev).add(type));
+    } catch (error) {
+      alert((error as Error).message || "Failed to upload document");
+    }
   };
 
   const handleComplete = () => {
@@ -150,6 +167,12 @@ export function TierUpgradeDialog({
             <div className="text-sm text-muted-foreground">
               Processing time: {tierConfig.processingTime}
             </div>
+
+            {!isUpgradeValid && (
+              <p className="text-xs text-destructive text-center py-2">
+                You are already at this tier or higher.
+              </p>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
@@ -194,11 +217,6 @@ export function TierUpgradeDialog({
             </>
           )}
         </DialogFooter>
-        {!isUpgradeValid && step === "info" && (
-          <p className="text-xs text-destructive text-center pb-4">
-            You are already at this tier or higher.
-          </p>
-        )}
       </DialogContent>
     </Dialog>
   );

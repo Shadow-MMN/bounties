@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/server-auth";
 import { VerificationService } from "@/lib/services/verification";
+import { ComplianceService } from "@/lib/services/compliance";
 import { KYCTier } from "@/types/compliance";
 
 export async function POST(request: NextRequest) {
@@ -12,12 +13,9 @@ export async function POST(request: NextRequest) {
 
     const { targetTier } = await request.json();
 
-    const VALID_TIERS: KYCTier[] = [
-      "UNVERIFIED",
-      "BASIC",
-      "VERIFIED",
-      "ENHANCED",
-    ];
+    const VALID_TIERS = Object.keys(ComplianceService.TIER_CONFIGS).filter(
+      (t) => t !== "UNVERIFIED",
+    ) as KYCTier[];
 
     // Validate targetTier
     if (!targetTier || !VALID_TIERS.includes(targetTier as KYCTier)) {
@@ -33,12 +31,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(verificationRequest);
   } catch (error) {
     console.error("Error creating verification request:", error);
+
+    const isValidationError =
+      error instanceof Error &&
+      (error.name === "ValidationError" ||
+        error.message.includes("Invalid") ||
+        error.message.includes("not allowed"));
+
     return NextResponse.json(
       {
         error:
           (error as Error).message || "Failed to create verification request",
       },
-      { status: 400 },
+      { status: isValidationError ? 400 : 500 },
     );
   }
 }
