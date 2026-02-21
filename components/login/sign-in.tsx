@@ -28,27 +28,38 @@ export default function SignIn({
     if (!email) return;
 
     setIsMagicLinkLoading(true);
-    const { error } = await authClient.signIn.magicLink({
-      email,
-      callbackURL: "/bounty",
-    });
-    if (error) {
-      toast.error(error.message ?? "Failed to send magic link. Please try again.");
-      console.error(error);
-    } else {
-      toast.success("Magic link sent to your email!");
+    try {
+      const { error } = await authClient.signIn.magicLink({
+        email,
+        callbackURL: "/bounty",
+      });
+      if (error) {
+        toast.error(error.message ?? "Failed to send magic link. Please try again.");
+        console.error(error);
+      } else {
+        toast.success("Magic link sent to your email!");
+      }
+    } catch (err) {
+      toast.error("A network error occurred. Please try again.");
+      console.error(err);
+    } finally {
+      setIsMagicLinkLoading(false);
     }
-    setIsMagicLinkLoading(false);
   };
 
   const handleSocialSignIn = async (provider: "github" | "google") => {
-    const { error } = await authClient.signIn.social({
-      provider,
-      callbackURL: "/bounty",
-    });
-    if (error) {
+    try {
+      const { error } = await authClient.signIn.social({
+        provider,
+        callbackURL: "/bounty",
+      });
+      if (error) {
+        toast.error(`Failed to sign in with ${provider}.`);
+        console.error(error);
+      }
+    } catch (err) {
       toast.error(`Failed to sign in with ${provider}.`);
-      console.error(error);
+      console.error(err);
     }
   };
 
