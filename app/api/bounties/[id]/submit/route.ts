@@ -36,6 +36,13 @@ export async function POST(
       return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
     }
 
+    if (bounty.status !== "open") {
+      return NextResponse.json(
+        { error: "Submissions are not accepted for this bounty" },
+        { status: 400 },
+      );
+    }
+
     const allowedModels = [
       "single-claim",
       "competition",

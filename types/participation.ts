@@ -20,6 +20,7 @@ export interface Submission {
   bountyId: string;
   contributorId: string;
   contributorName?: string;
+  /** @deprecated Use explanation. Kept for backward compatibility with consumers that expect a generic content field. */
   content: string;
   githubUrl?: string;
   demoUrl?: string;

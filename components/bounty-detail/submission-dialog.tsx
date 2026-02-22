@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -32,6 +32,8 @@ import {
 } from "@/components/bounty/forms/schemas";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { bountiesApi } from "@/lib/api/bounties";
+import { authClient } from "@/lib/auth-client";
+import { mockWalletInfo } from "@/lib/mock-wallet";
 
 interface SubmissionDialogProps {
   bountyId: string;
@@ -40,13 +42,13 @@ interface SubmissionDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const DRAFT_DEFAULTS: SubmissionFormValue = {
+const getBaseDefaults = (): SubmissionFormValue => ({
   githubUrl: "",
   demoUrl: "",
   explanation: "",
   attachments: [],
-  walletAddress: "",
-};
+  walletAddress: mockWalletInfo.address,
+});
 
 export function SubmissionDialog({
   bountyId,
@@ -56,16 +58,28 @@ export function SubmissionDialog({
 }: SubmissionDialogProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { data: session } = authClient.useSession();
   const storageKey = `submission-draft-${bountyId}`;
   const [draft, setDraft] = useLocalStorage<SubmissionFormValue | null>(
     storageKey,
     null,
   );
 
+  const baseDefaults = getBaseDefaults();
+
   const form = useForm<SubmissionFormValue>({
     resolver: zodResolver(submissionFormSchema),
-    defaultValues: draft ?? DRAFT_DEFAULTS,
+    defaultValues: draft
+      ? { ...draft, walletAddress: baseDefaults.walletAddress }
+      : baseDefaults,
   });
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -74,7 +88,9 @@ export function SubmissionDialog({
 
   useEffect(() => {
     if (open && draft) {
-      form.reset(draft);
+      form.reset({ ...draft, walletAddress: baseDefaults.walletAddress });
+    } else if (open) {
+      form.reset(baseDefaults);
     }
     if (open) {
       setSubmitted(false);
@@ -94,6 +110,12 @@ export function SubmissionDialog({
   }, [setDraft]);
 
   const onSubmit = async (data: SubmissionFormValue) => {
+    const contributorId = session?.user?.id;
+    if (!contributorId) {
+      toast.error("You must be signed in to submit.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const payload = {
@@ -101,17 +123,19 @@ export function SubmissionDialog({
         githubUrl: data.githubUrl || undefined,
         demoUrl: data.demoUrl || undefined,
         attachments: data.attachments?.filter(Boolean),
-        contributorId: "current-user",
+        contributorId,
       };
 
       await bountiesApi.submit(bountyId, payload);
 
       clearDraft();
-      form.reset(DRAFT_DEFAULTS);
+      form.reset(baseDefaults);
       setSubmitted(true);
       toast.success("Submission sent successfully!");
 
-      setTimeout(() => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        timeoutRef.current = null;
         onOpenChange(false);
         setSubmitted(false);
       }, 2000);
@@ -168,10 +192,15 @@ export function SubmissionDialog({
                     Wallet Address <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="G... or 0x..." {...field} />
+                    <Input
+                      placeholder="G... or 0x..."
+                      readOnly
+                      className="bg-muted cursor-default"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
-                    The address where you&apos;d like to receive the reward
+                    Your connected wallet (rewards will be sent here)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -298,13 +327,17 @@ export function SubmissionDialog({
                 type="button"
                 variant="outline"
                 onClick={saveDraft}
-                disabled={submitting}
+                disabled={submitting || !session?.user?.id}
                 className="gap-1.5"
               >
                 <Save className="size-4" />
                 Save Draft
               </Button>
-              <Button type="submit" disabled={submitting} className="gap-1.5">
+              <Button
+                type="submit"
+                disabled={submitting || !session?.user?.id}
+                className="gap-1.5"
+              >
                 {submitting ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
