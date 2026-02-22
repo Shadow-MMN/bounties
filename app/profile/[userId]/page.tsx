@@ -98,6 +98,11 @@ export default function ProfilePage() {
         });
       } else {
         pendingAmount += amount;
+        payoutHistory.push({
+          amount,
+          date: bounty.claimExpiresAt ?? bounty.createdAt,
+          status: "processing",
+        });
       }
     }
 
