@@ -4,11 +4,7 @@ import { useContributorReputation } from "@/hooks/use-reputation";
 import { useBounties } from "@/hooks/use-bounties";
 import { ReputationCard } from "@/components/reputation/reputation-card";
 import { CompletionHistory } from "@/components/reputation/completion-history";
-import {
-  MyClaims,
-  type MyClaim,
-  normalizeStatus,
-} from "@/components/reputation/my-claims";
+import { MyClaims, type MyClaim } from "@/components/reputation/my-claims";
 import {
   EarningsSummary,
   type EarningsSummary as EarningsSummaryType,
@@ -20,6 +16,20 @@ import { AlertCircle, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
+
+function deriveBountyStatus(bounty: {
+  status: string;
+  claimExpiresAt?: string | null;
+}): "completed" | "in-review" | "active" {
+  if (bounty.status === "closed") return "completed";
+  if (bounty.status === "claimed" && bounty.claimExpiresAt) {
+    const expiry = new Date(bounty.claimExpiresAt);
+    if (!Number.isNaN(expiry.getTime()) && expiry < new Date()) {
+      return "in-review";
+    }
+  }
+  return "active";
+}
 
 export default function ProfilePage() {
   const params = useParams();
@@ -64,18 +74,6 @@ export default function ProfilePage() {
 
   const earningsSummary = useMemo<EarningsSummaryType>(() => {
     const currency = reputation?.stats.earningsCurrency ?? "USDC";
-    const completedStatuses = ["completed", "closed", "accepted", "done"];
-    const pendingStatuses = [
-      "active",
-      "claimed",
-      "in-progress",
-      "in-review",
-      "in review",
-      "review",
-      "pending",
-      "under-review",
-    ];
-
     const allBounties = bountyResponse?.data ?? [];
     const userBounties = allBounties.filter((b) => b.claimedBy === userId);
 
@@ -85,35 +83,27 @@ export default function ProfilePage() {
 
     for (const bounty of userBounties) {
       const amount = bounty.rewardAmount ?? 0;
-      let status = "active";
-      if (bounty.status === "closed") {
-        status = "completed";
-      } else if (bounty.status === "claimed" && bounty.claimExpiresAt) {
-        const expiry = new Date(bounty.claimExpiresAt);
-        if (!Number.isNaN(expiry.getTime()) && expiry < new Date()) {
-          status = "in-review";
-        }
-      }
+      const status = deriveBountyStatus(bounty);
 
-      const normalized = normalizeStatus(status);
-      if (completedStatuses.some((s) => normalizeStatus(s) === normalized)) {
+      if (status === "completed") {
         totalEarned += amount;
-        payoutHistory.push({
-          amount,
-          date: bounty.claimExpiresAt ?? new Date().toISOString(),
-          status: "completed",
-        });
-      } else if (
-        pendingStatuses.some((s) => normalizeStatus(s) === normalized)
-      ) {
-        pendingAmount += amount;
-        if (normalized === "in-review") {
+        if (bounty.claimExpiresAt) {
           payoutHistory.push({
             amount,
-            date: bounty.claimExpiresAt ?? new Date().toISOString(),
-            status: "processing",
+            date: bounty.claimExpiresAt,
+            status: "completed",
           });
         }
+      } else if (status === "in-review") {
+        pendingAmount += amount;
+        // claimExpiresAt is guaranteed when status is "in-review"
+        payoutHistory.push({
+          amount,
+          date: bounty.claimExpiresAt!,
+          status: "processing",
+        });
+      } else {
+        pendingAmount += amount;
       }
     }
 
@@ -130,28 +120,12 @@ export default function ProfilePage() {
 
     return bounties
       .filter((bounty) => bounty.claimedBy === userId)
-      .map((bounty) => {
-        let status = "active";
-
-        if (bounty.status === "closed") {
-          status = "completed";
-        } else if (bounty.status === "claimed" && bounty.claimExpiresAt) {
-          const claimExpiry = new Date(bounty.claimExpiresAt);
-          if (
-            !Number.isNaN(claimExpiry.getTime()) &&
-            claimExpiry < new Date()
-          ) {
-            status = "in-review";
-          }
-        }
-
-        return {
-          bountyId: bounty.id,
-          title: bounty.issueTitle,
-          status,
-          rewardAmount: bounty.rewardAmount ?? undefined,
-        };
-      });
+      .map((bounty) => ({
+        bountyId: bounty.id,
+        title: bounty.issueTitle,
+        status: deriveBountyStatus(bounty),
+        rewardAmount: bounty.rewardAmount ?? undefined,
+      }));
   }, [bountyResponse?.data, userId]);
 
   if (isLoading) {
