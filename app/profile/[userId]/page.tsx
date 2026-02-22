@@ -39,38 +39,36 @@ export default function ProfilePage() {
     isLoading,
     error,
   } = useContributorReputation(userId);
-  const { data: bountyResponse, isLoading: isBountiesLoading } = useBounties();
+  const {
+    data: bountyResponse,
+    isLoading: isBountiesLoading,
+    error: bountiesError,
+  } = useBounties();
 
-  const MAX_MOCK_HISTORY = 50;
-
-  const mockHistory = useMemo(() => {
-    if (!reputation) return [];
-    const count = Math.min(
-      reputation.stats.totalCompleted ?? 0,
-      MAX_MOCK_HISTORY,
-    );
-    return Array(count)
-      .fill(null)
-      .map((_, i) => ({
-        id: `bounty-${i}`,
-        bountyId: `b-${i}`,
-        bountyTitle: `Implemented feature #${100 + i}`,
-        projectName: "Drips Protocol",
-        projectLogoUrl: null,
-        difficulty: ["BEGINNER", "INTERMEDIATE", "ADVANCED"][i % 3] as
+  const completionHistory = useMemo(() => {
+    const bounties = bountyResponse?.data ?? [];
+    return bounties
+      .filter((b) => b.claimedBy === userId && b.status === "closed")
+      .map((b) => ({
+        id: b.id,
+        bountyId: b.id,
+        bountyTitle: b.issueTitle,
+        projectName: b.projectName,
+        projectLogoUrl: b.projectLogoUrl,
+        difficulty: (b.difficulty?.toUpperCase() ?? "BEGINNER") as
           | "BEGINNER"
           | "INTERMEDIATE"
           | "ADVANCED",
-        rewardAmount: 500,
-        rewardCurrency: "USDC",
-        claimedAt: "2023-01-01T00:00:00Z",
-        completedAt: "2024-01-15T12:00:00Z",
-        completionTimeHours: 48,
-        maintainerRating: 5,
-        maintainerFeedback: "Great work!",
-        pointsEarned: 150,
+        rewardAmount: b.rewardAmount ?? 0,
+        rewardCurrency: b.rewardCurrency,
+        claimedAt: b.claimedAt ?? b.createdAt,
+        completedAt: b.updatedAt,
+        completionTimeHours: 0,
+        maintainerRating: null,
+        maintainerFeedback: null,
+        pointsEarned: 0,
       }));
-  }, [reputation]);
+  }, [bountyResponse?.data, userId]);
 
   const earningsSummary = useMemo<EarningsSummaryType>(() => {
     const currency = reputation?.stats.earningsCurrency ?? "USDC";
@@ -236,10 +234,17 @@ export default function ProfilePage() {
 
             <TabsContent value="history" className="mt-6">
               <h2 className="text-xl font-bold mb-4">Activity History</h2>
-              <CompletionHistory
-                records={mockHistory}
-                description={`Showing the last ${mockHistory.length} completed bounties.`}
-              />
+              {bountiesError ? (
+                <div className="flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  Failed to load bounty history. Please try again.
+                </div>
+              ) : (
+                <CompletionHistory
+                  records={completionHistory}
+                  description={`Showing ${completionHistory.length} completed bounti${completionHistory.length === 1 ? "y" : "es"}.`}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-6">
@@ -250,10 +255,17 @@ export default function ProfilePage() {
 
             <TabsContent value="claims" className="mt-6">
               <h2 className="text-xl font-bold mb-4">My Claims</h2>
-              <div className="space-y-6">
-                <EarningsSummary earnings={earningsSummary} />
-                <MyClaims claims={myClaims} />
-              </div>
+              {bountiesError ? (
+                <div className="flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  Failed to load claims and earnings. Please try again.
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <EarningsSummary earnings={earningsSummary} />
+                  <MyClaims claims={myClaims} />
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
