@@ -1,6 +1,9 @@
 "use client";
 
-import { useContributorReputation } from "@/hooks/use-reputation";
+import {
+  useContributorReputation,
+  useCompletionHistory,
+} from "@/hooks/use-reputation";
 import { useBounties } from "@/hooks/use-bounties";
 import { ReputationCard } from "@/components/reputation/reputation-card";
 import { CompletionHistory } from "@/components/reputation/completion-history";
@@ -20,12 +23,12 @@ import { useMemo } from "react";
 function deriveBountyStatus(bounty: {
   status: string;
   claimExpiresAt?: string | null;
-}): "completed" | "in-review" | "active" {
+}): "completed" | "expired" | "active" {
   if (bounty.status === "closed") return "completed";
   if (bounty.status === "claimed" && bounty.claimExpiresAt) {
     const expiry = new Date(bounty.claimExpiresAt);
     if (!Number.isNaN(expiry.getTime()) && expiry < new Date()) {
-      return "in-review";
+      return "expired";
     }
   }
   return "active";
@@ -44,36 +47,18 @@ export default function ProfilePage() {
     isLoading: isBountiesLoading,
     error: bountiesError,
   } = useBounties();
+  const { data: completionData, isLoading: completionLoading } =
+    useCompletionHistory(userId);
 
-  const completionHistory = useMemo(() => {
-    const bounties = bountyResponse?.data ?? [];
-    return bounties
-      .filter((b) => b.claimedBy === userId && b.status === "closed")
-      .map((b) => ({
-        id: b.id,
-        bountyId: b.id,
-        bountyTitle: b.issueTitle,
-        projectName: b.projectName,
-        projectLogoUrl: b.projectLogoUrl,
-        difficulty: (b.difficulty?.toUpperCase() ?? "BEGINNER") as
-          | "BEGINNER"
-          | "INTERMEDIATE"
-          | "ADVANCED",
-        rewardAmount: b.rewardAmount ?? 0,
-        rewardCurrency: b.rewardCurrency,
-        claimedAt: b.claimedAt ?? b.createdAt,
-        completedAt: b.updatedAt,
-        completionTimeHours: 0,
-        maintainerRating: null,
-        maintainerFeedback: null,
-        pointsEarned: 0,
-      }));
-  }, [bountyResponse?.data, userId]);
+  const completionRecords = completionData?.records ?? [];
 
   const earningsSummary = useMemo<EarningsSummaryType>(() => {
     const currency = reputation?.stats.earningsCurrency ?? "USDC";
     const allBounties = bountyResponse?.data ?? [];
-    const userBounties = allBounties.filter((b) => b.claimedBy === userId);
+    const userBounties = allBounties.filter(
+      (b) =>
+        b.claimedBy === userId && (b.rewardCurrency ?? "USDC") === currency,
+    );
 
     let totalEarned = 0;
     let pendingAmount = 0;
@@ -88,15 +73,9 @@ export default function ProfilePage() {
         // Use claimExpiresAt as a proxy for payout date, fall back to createdAt.
         const payoutDate = bounty.claimExpiresAt ?? bounty.createdAt;
         payoutHistory.push({ amount, date: payoutDate, status: "completed" });
-      } else if (status === "in-review") {
-        pendingAmount += amount;
-        // claimExpiresAt is guaranteed when status is "in-review"
-        payoutHistory.push({
-          amount,
-          date: bounty.claimExpiresAt!,
-          status: "processing",
-        });
-      } else {
+      } else if (status === "active") {
+        // "active" — claimed but not yet submitted; include in history so
+        // the "Pending" card total matches the sum of history rows.
         pendingAmount += amount;
         payoutHistory.push({
           amount,
@@ -104,6 +83,7 @@ export default function ProfilePage() {
           status: "processing",
         });
       }
+      // "expired" claims are forfeited; omit from both totals and history
     }
 
     // If no real claim data, fall back to reputation stats
@@ -141,7 +121,6 @@ export default function ProfilePage() {
   }
 
   if (error) {
-    // Check if it's a 404 (Not Found)
     const apiError = error as { status?: number; message?: string };
     const isNotFound =
       apiError?.status === 404 || apiError?.message?.includes("404");
@@ -161,7 +140,6 @@ export default function ProfilePage() {
       );
     }
 
-    // Generic Error
     return (
       <div className="container mx-auto py-16 text-center">
         <AlertCircle className="w-12 h-12 mx-auto text-destructive mb-4" />
@@ -209,8 +187,6 @@ export default function ProfilePage() {
         {/* Left Sidebar: Reputation Card */}
         <div className="lg:col-span-4 space-y-6">
           <ReputationCard reputation={reputation} />
-
-          {/* Additional Sidebar Info could go here */}
         </div>
 
         {/* Main Content: Activity & History */}
@@ -239,15 +215,16 @@ export default function ProfilePage() {
 
             <TabsContent value="history" className="mt-6">
               <h2 className="text-xl font-bold mb-4">Activity History</h2>
-              {bountiesError ? (
-                <div className="flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  Failed to load bounty history. Please try again.
-                </div>
+              {completionLoading ? (
+                <Skeleton className="h-100 w-full" />
               ) : (
                 <CompletionHistory
-                  records={completionHistory}
-                  description={`Showing ${completionHistory.length} completed bounti${completionHistory.length === 1 ? "y" : "es"}.`}
+                  records={completionRecords}
+                  description={
+                    completionRecords.length > 0
+                      ? `Showing the last ${completionRecords.length} completed bounties.`
+                      : undefined
+                  }
                 />
               )}
             </TabsContent>
