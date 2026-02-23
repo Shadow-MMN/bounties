@@ -3,10 +3,8 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
 const config: CodegenConfig = {
   schema: "../boundless-nestjs/src/schema.gql",
   documents: [
-    "lib/graphql/**/*.ts",
-    "lib/graphql/**/*.tsx",
-    "hooks/**/*.ts",
-    "hooks/**/*.tsx",
+    "lib/graphql/operations/**/*.ts",
+    "lib/graphql/operations/**/*.tsx",
   ],
   ignoreNoDocuments: true,
   generates: {

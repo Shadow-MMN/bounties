@@ -14,8 +14,16 @@ export interface FilterState {
 // Project status
 export type ProjectStatus = "active" | "completed" | "paused";
 
-// Bounty status
-export type BountyStatus = "open" | "in-progress" | "completed";
+// Bounty status — aligned with backend GraphQL enum
+export type BountyStatus =
+  | "OPEN"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "DRAFT"
+  | "SUBMITTED"
+  | "UNDER_REVIEW"
+  | "DISPUTED";
 
 // Project interface
 export interface Project {
@@ -32,29 +40,26 @@ export interface Project {
   completedMilestones?: number;
 }
 
-// Bounty interface
+// Bounty interface — aligned with backend GraphQL Bounty type
 export interface Bounty {
   id: string;
   title: string;
   description: string;
-  tags: string[];
-  reward: number;
-  currency: string;
-  claimingModel: "single-claim" | "application" | "competition" | "multi-winner";
+  type: string;
   status: BountyStatus;
+
+  organizationId: string;
+  projectId?: string | null;
+
+  githubIssueUrl: string;
+  githubIssueNumber?: number | null;
+
+  rewardAmount: number;
+  rewardCurrency: string;
+
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
-  creator: string;
-
-  // Status & Logic fields
-  claimedAt?: string;
-  claimedBy?: string;
-  lastActivityAt?: string;
-  claimExpiresAt?: string;
-  submissionsEndDate?: string;
-
-  difficulty: "beginner" | "intermediate" | "advanced";
-  deadline?: string;
 }
 
 // Available tags
