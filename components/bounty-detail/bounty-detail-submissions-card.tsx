@@ -22,6 +22,14 @@ import {
 } from "@/hooks/use-submission-mutations";
 import { authClient } from "@/lib/auth-client";
 
+interface ExtendedUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  organizations?: string[];
+}
+
 interface BountyDetailSubmissionsCardProps {
   bounty: {
     id: string;
@@ -49,7 +57,10 @@ export function BountyDetailSubmissionsCard({
   const reviewSubmission = useReviewSubmission();
   const markSubmissionPaid = useMarkSubmissionPaid();
 
-  const isOrgMember = session?.user?.id && bounty.organizationId; // Simplified check
+  const isOrgMember =
+    (session?.user as ExtendedUser)?.organizations?.includes(
+      bounty.organizationId,
+    ) ?? false;
 
   const handleSubmitPR = async () => {
     if (!prUrl.trim()) return;
