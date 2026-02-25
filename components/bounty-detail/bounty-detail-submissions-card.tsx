@@ -55,7 +55,8 @@ export function BountyDetailSubmissionsCard({
     useState<BountySubmissionType | null>(null);
 
   const [prUrl, setPrUrl] = useState("");
-  const [comments, setComments] = useState("");
+    const [submitComments, setSubmitComments] = useState("");
+    const [reviewComments, setReviewComments] = useState("");
   const [reviewStatus, setReviewStatus] = useState("APPROVED");
   const [transactionHash, setTransactionHash] = useState("");
 
@@ -70,43 +71,55 @@ export function BountyDetailSubmissionsCard({
 
   const handleSubmitPR = async () => {
     if (!prUrl.trim()) return;
-
-    await submitToBounty.mutateAsync({
-      bountyId: bounty.id,
-      githubPullRequestUrl: prUrl,
-      comments: comments.trim() || undefined,
-    });
-
-    setPrUrl("");
-    setComments("");
-    setSubmitDialogOpen(false);
+    try {
+      await submitToBounty.mutateAsync({
+        bountyId: bounty.id,
+        githubPullRequestUrl: prUrl,
+        comments: submitComments.trim() || undefined,
+      });
+    } catch (err) {
+      // Replace with toast or error UI as needed
+      console.error("Submit PR failed:", err);
+    } finally {
+      setPrUrl("");
+      setSubmitComments("");
+      setSubmitDialogOpen(false);
+    }
   };
 
   const handleReviewSubmission = async () => {
     if (!selectedSubmission) return;
-
-    await reviewSubmission.mutateAsync({
-      submissionId: selectedSubmission.id,
-      status: reviewStatus,
-      reviewComments: comments.trim() || undefined,
-    });
-
-    setReviewDialogOpen(false);
-    setSelectedSubmission(null);
-    setComments("");
+    try {
+      await reviewSubmission.mutateAsync({
+        submissionId: selectedSubmission.id,
+        status: reviewStatus,
+        reviewComments: reviewComments.trim() || undefined,
+      });
+    } catch (err) {
+      // Replace with toast or error UI as needed
+      console.error("Review submission failed:", err);
+    } finally {
+      setReviewDialogOpen(false);
+      setSelectedSubmission(null);
+      setReviewComments("");
+    }
   };
 
   const handleMarkPaid = async (submission: BountySubmissionType) => {
     if (!transactionHash.trim()) return;
-
-    await markSubmissionPaid.mutateAsync({
-      submissionId: submission.id,
-      transactionHash: transactionHash.trim(),
-    });
-
-    setTransactionHash("");
-    setSelectedPaidSubmission(null);
-    setMarkPaidDialogOpen(false);
+    try {
+      await markSubmissionPaid.mutateAsync({
+        submissionId: submission.id,
+        transactionHash: transactionHash.trim(),
+      });
+    } catch (err) {
+      // Replace with toast or error UI as needed
+      console.error("Mark paid failed:", err);
+    } finally {
+      setTransactionHash("");
+      setSelectedPaidSubmission(null);
+      setMarkPaidDialogOpen(false);
+    }
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -162,11 +175,11 @@ export function BountyDetailSubmissionsCard({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="comments">Comments</Label>
+                  <Label htmlFor="submit-comments">Comments</Label>
                   <Textarea
-                    id="comments"
-                    value={comments}
-                    onChange={(e) => setComments(e.target.value)}
+                    id="submit-comments"
+                    value={submitComments}
+                    onChange={(e) => setSubmitComments(e.target.value)}
                   />
                 </div>
 
@@ -294,8 +307,8 @@ export function BountyDetailSubmissionsCard({
           <div className="space-y-4">
             <Textarea
               placeholder="Add review feedback..."
-              value={comments}
-              onChange={(e) => setComments(e.target.value)}
+              value={reviewComments}
+              onChange={(e) => setReviewComments(e.target.value)}
             />
 
             <div className="flex justify-end gap-2">
