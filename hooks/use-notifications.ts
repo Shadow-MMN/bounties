@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import {
@@ -25,7 +25,11 @@ export interface NotificationItem {
 const MAX_NOTIFICATIONS = 25;
 
 function normaliseTimestamp(value?: string | null): string {
-  return value ? new Date(value).toISOString() : new Date().toISOString();
+  if (!value) return new Date().toISOString();
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime())
+    ? new Date().toISOString()
+    : parsed.toISOString();
 }
 
 function notificationKey(item: Pick<NotificationItem, "id" | "type">): string {
@@ -54,6 +58,13 @@ export function useNotifications() {
 
   const isEnabled = Boolean(session?.user);
   const isLoading = session === undefined;
+  const userId = session?.user?.id ?? null;
+  const prevUserIdRef = useRef(userId);
+
+  if (prevUserIdRef.current !== userId) {
+    prevUserIdRef.current = userId;
+    setNotifications([]);
+  }
 
   useGraphQLSubscription<OnBountyUpdatedData>(
     ON_BOUNTY_UPDATED_SUBSCRIPTION,

@@ -82,16 +82,7 @@ export interface BountyUpdatedData {
   };
 }
 
-export interface OnBountyUpdatedData {
-  bountyUpdated: {
-    id: string;
-    title: string;
-    status: string;
-    rewardAmount: number;
-    rewardCurrency: string;
-    updatedAt?: string | null;
-  };
-}
+export type OnBountyUpdatedData = BountyUpdatedData;
 
 export interface OnNewApplicationData {
   submissionCreated: {
