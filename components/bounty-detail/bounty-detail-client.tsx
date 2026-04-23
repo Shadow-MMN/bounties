@@ -10,6 +10,7 @@ import { DescriptionCard } from "./bounty-detail-description-card";
 import { BountyDetailSubmissionsCard } from "./bounty-detail-submissions-card";
 import { BountyDetailSkeleton } from "./bounty-detail-bounty-detail-skeleton";
 import { useBountyDetail } from "@/hooks/use-bounty-detail";
+import { FcfsApprovalPanel } from "@/components/bounty/fcfs-approval-panel";
 import { EscrowDetailPanel } from "../bounty/escrow-detail-panel";
 import { RefundStatusTracker } from "../bounty/refund-status";
 import { FeeCalculator } from "../bounty/fee-calculator";
@@ -87,11 +88,11 @@ export function BountyDetailClient({ bountyId }: { bountyId: string }) {
         <HeaderCard bounty={bounty} />
         <DescriptionCard description={bounty.description} />
         {!isCancelled && pool && <EscrowDetailPanel poolId={bountyId} />}
-        <RefundStatusTracker
-          bountyId={bountyId}
-          isCancelled={isCancelled}
-        />
-        <BountyDetailSubmissionsCard bounty={bounty} />
+        <RefundStatusTracker bountyId={bountyId} isCancelled={isCancelled} />
+        {bounty.type !== "FIXED_PRICE" && (
+          <BountyDetailSubmissionsCard bounty={bounty} />
+        )}
+        {bounty.type === "FIXED_PRICE" && <FcfsApprovalPanel bounty={bounty} />}
       </div>
 
       {/* Sidebar */}
@@ -107,4 +108,3 @@ export function BountyDetailClient({ bountyId }: { bountyId: string }) {
     </div>
   );
 }
-

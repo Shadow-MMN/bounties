@@ -22,10 +22,10 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
 
 import { BountyFieldsFragment } from "@/lib/graphql/generated";
 import { StatusBadge, TypeBadge } from "./bounty-badges";
+import { FcfsClaimButton } from "@/components/bounty/fcfs-claim-button";
 import { authClient } from "@/lib/auth-client";
 import type { CancellationRecord } from "@/types/escrow";
 import { useCancelBountyDialog } from "@/hooks/use-cancel-bounty-dialog";
@@ -49,6 +49,7 @@ export function SidebarCTA({ bounty, onCancelled }: SidebarCTAProps) {
   } = useCancelBountyDialog(bounty.id, onCancelled);
 
   const canAct = bounty.status === "OPEN";
+  const isFcfs = bounty.type === "FIXED_PRICE";
   const isCreator = session?.user?.id === bounty.createdBy;
   const canCancel =
     isCreator && (bounty.status === "OPEN" || bounty.status === "IN_PROGRESS");
@@ -105,7 +106,7 @@ export function SidebarCTA({ bounty, onCancelled }: SidebarCTAProps) {
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between text-gray-400">
             <span>Status</span>
-            <StatusBadge status={bounty.status} />
+            <StatusBadge status={bounty.status} type={bounty.type} />
           </div>
           <div className="flex items-center justify-between text-gray-400">
             <span>Type</span>
@@ -116,17 +117,25 @@ export function SidebarCTA({ bounty, onCancelled }: SidebarCTAProps) {
         <Separator className="bg-gray-800/60" />
 
         {/* CTA */}
-        <Button
-          className="w-full h-11 font-bold tracking-wide"
-          disabled={!canAct}
-          size="lg"
-          onClick={() =>
-            canAct &&
-            window.open(bounty.githubIssueUrl, "_blank", "noopener,noreferrer")
-          }
-        >
-          {ctaLabel()}
-        </Button>
+        {isFcfs ? (
+          <FcfsClaimButton bounty={bounty} />
+        ) : (
+          <Button
+            className="w-full h-11 font-bold tracking-wide"
+            disabled={!canAct}
+            size="lg"
+            onClick={() =>
+              canAct &&
+              window.open(
+                bounty.githubIssueUrl,
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
+          >
+            {ctaLabel()}
+          </Button>
+        )}
 
         {!canAct && (
           <p className="flex items-center gap-1.5 text-xs text-gray-500 justify-center text-center">
@@ -219,7 +228,7 @@ export function SidebarCTA({ bounty, onCancelled }: SidebarCTAProps) {
                 placeholder="e.g., Requirements changed, budget reallocation, issue resolved externally..."
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                className="min-h-[80px] resize-none"
+                className="min-h-20 resize-none"
                 disabled={isCancelling}
               />
             </div>
@@ -237,9 +246,7 @@ export function SidebarCTA({ bounty, onCancelled }: SidebarCTAProps) {
               onClick={handleCancel}
               disabled={!cancelReason.trim() || isCancelling}
             >
-              {isCancelling && (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              )}
+              {isCancelling && <Loader2 className="mr-2 size-4 animate-spin" />}
               Cancel Bounty & Refund
             </Button>
           </AlertDialogFooter>
@@ -267,6 +274,7 @@ export function MobileCTA({ bounty, onCancelled }: MobileCTAProps) {
   } = useCancelBountyDialog(bounty.id, onCancelled);
 
   const canAct = bounty.status === "OPEN";
+  const isFcfs = bounty.type === "FIXED_PRICE";
   const isCreator = session?.user?.id === bounty.createdBy;
   const canCancel =
     isCreator && (bounty.status === "OPEN" || bounty.status === "IN_PROGRESS");
@@ -287,29 +295,37 @@ export function MobileCTA({ bounty, onCancelled }: MobileCTAProps) {
 
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-xl border-t border-gray-800/60 z-20">
-      <div className="flex gap-2">
-        <Button
-          className="flex-1 h-11 font-bold tracking-wide"
-          disabled={!canAct}
-          size="lg"
-          onClick={() =>
-            canAct &&
-            window.open(bounty.githubIssueUrl, "_blank", "noopener,noreferrer")
-          }
-        >
-          {label()}
-        </Button>
-        {canCancel && (
+      {isFcfs ? (
+        <FcfsClaimButton bounty={bounty} />
+      ) : (
+        <div className="flex gap-2">
           <Button
-            variant="outline"
+            className="flex-1 h-11 font-bold tracking-wide"
+            disabled={!canAct}
             size="lg"
-            className="h-11 border-red-500/30 text-red-400 hover:bg-red-500/10 shrink-0"
-            onClick={() => setCancelDialogOpen(true)}
+            onClick={() =>
+              canAct &&
+              window.open(
+                bounty.githubIssueUrl,
+                "_blank",
+                "noopener,noreferrer",
+              )
+            }
           >
-            <XCircle className="size-4" />
+            {label()}
           </Button>
-        )}
-      </div>
+          {canCancel && (
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-11 border-red-500/30 text-red-400 hover:bg-red-500/10 shrink-0"
+              onClick={() => setCancelDialogOpen(true)}
+            >
+              <XCircle className="size-4" />
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Mobile Cancel Dialog */}
       <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
@@ -333,7 +349,7 @@ export function MobileCTA({ bounty, onCancelled }: MobileCTAProps) {
               placeholder="Reason for cancellation..."
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
-              className="min-h-[80px]"
+              className="min-h-20"
               disabled={isCancelling}
             />
           </div>
@@ -346,9 +362,7 @@ export function MobileCTA({ bounty, onCancelled }: MobileCTAProps) {
               onClick={handleCancel}
               disabled={!cancelReason.trim() || isCancelling}
             >
-              {isCancelling && (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              )}
+              {isCancelling && <Loader2 className="mr-2 size-4 animate-spin" />}
               Cancel & Refund
             </Button>
           </AlertDialogFooter>
@@ -357,4 +371,3 @@ export function MobileCTA({ bounty, onCancelled }: MobileCTAProps) {
     </div>
   );
 }
-

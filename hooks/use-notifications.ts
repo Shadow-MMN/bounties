@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -90,33 +89,28 @@ export function useNotifications() {
 
   const isEnabled = Boolean(session?.user);
   const userId = session?.user?.id ?? null;
-  const prevUserIdRef = useRef(userId);
 
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+  // Initialize state with lazy loading from localStorage
+  // This runs only once during initial render, avoiding setState in effect
+  const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
+    if (typeof window === "undefined" || !userId) return [];
+    return loadFromStorage(userId);
+  });
 
-  // Hydrate from localStorage when userId becomes available
-  useEffect(() => {
-    if (userId) {
-      setNotifications(loadFromStorage(userId));
-    } else {
-      setNotifications([]);
-    }
-    setHydrated(true);
-  }, [userId]);
-
-  // Reset on user change
-  if (prevUserIdRef.current !== userId) {
-    prevUserIdRef.current = userId;
+  // Reset on user change - this is allowed during render as it's a state update
+  // based on a condition change (userId)
+  const prevHydratedUserIdRef = useRef(userId);
+  if (prevHydratedUserIdRef.current !== userId) {
+    prevHydratedUserIdRef.current = userId;
     setNotifications(userId ? loadFromStorage(userId) : []);
   }
 
   // Persist to localStorage whenever notifications change
   useEffect(() => {
-    if (userId && hydrated) {
+    if (userId) {
       saveToStorage(userId, notifications);
     }
-  }, [notifications, userId, hydrated]);
+  }, [notifications, userId]);
 
   // Helper to update notifications with cache invalidation
   const addNotification = useCallback(
@@ -230,7 +224,7 @@ export function useNotifications() {
     [notifications],
   );
 
-  const isLoading = session === undefined || !hydrated;
+  const isLoading = session === undefined;
 
   const markAsRead = useCallback((id: string, type: NotificationType) => {
     setNotifications((previous) =>
