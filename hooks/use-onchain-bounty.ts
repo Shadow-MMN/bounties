@@ -51,6 +51,16 @@ function mapGraphQLStatusToOnChain(
   return null;
 }
 
+// Module-level singleton: creating a new rpc.Server per query call spawns
+// unnecessary connections on every refetch.
+let sharedServer: rpc.Server | null = null;
+function getServer(): rpc.Server {
+  if (!sharedServer) {
+    sharedServer = new rpc.Server(STELLAR_RPC_URL, { allowHttp: false });
+  }
+  return sharedServer;
+}
+
 async function fetchOnChainBountyStatus(
   bountyId: string,
 ): Promise<OnChainBountyData> {
@@ -58,7 +68,7 @@ async function fetchOnChainBountyStatus(
     return { bountyId, status: "unknown" };
   }
 
-  const server = new rpc.Server(STELLAR_RPC_URL, { allowHttp: false });
+  const server = getServer();
 
   try {
     const statusKey = xdr.ScVal.scvVec([

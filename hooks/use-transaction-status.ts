@@ -138,8 +138,10 @@ export function useTransactionStatus() {
 
           if (result.status === rpc.Api.GetTransactionStatus.FAILED) {
             clearPolling();
-            const resultXdr = (result as unknown as { resultXdr?: string })
-              .resultXdr;
+            const resultXdr =
+              "resultXdr" in result && typeof result.resultXdr === "string"
+                ? result.resultXdr
+                : undefined;
             setState({
               hash,
               status: "failed",
