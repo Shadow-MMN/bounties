@@ -11,7 +11,15 @@ export function HeaderCard({ bounty }: { bounty: BountyFieldsFragment }) {
   return (
     <div className="p-6 rounded-xl border border-gray-800 bg-background-card backdrop-blur-xl shadow-sm relative">
       {/* Bookmark button - top right corner */}
-      <div className="absolute right-4 top-4">
+      <div
+        className="absolute right-4 top-4"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.stopPropagation();
+          }
+        }}
+      >
         <BookmarkButton bountyId={bounty.id} size="md" />
       </div>
 

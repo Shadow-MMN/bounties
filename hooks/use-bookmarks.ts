@@ -29,12 +29,20 @@ export function useBookmarks() {
 /**
  * Hook to fetch just the bookmarked bounty IDs.
  * Use this for O(1) bookmark state checks (backed by Set).
+ *
+ * NOTE: Derives from the full bookmarks query when available to keep caches in sync.
+ * Only falls back to independent fetch when the list cache is empty (e.g., on first load
+ * of a fresh session, or on the /saved page where the list is the primary source).
  */
 export function useBookmarkIds() {
+  const queryClient = useQueryClient();
+  const listData = queryClient.getQueryData<Bookmark[]>(bookmarkKeys.list());
+
   return useQuery<string[]>({
     queryKey: bookmarkKeys.ids(),
     queryFn: fetchBookmarkIds,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    initialData: listData?.map((b) => b.bounty.id) ?? undefined,
   });
 }
 

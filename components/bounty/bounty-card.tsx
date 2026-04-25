@@ -150,7 +150,15 @@ export function BountyCard({
       )}
 
       {/* Bookmark button - top-right corner */}
-      <div className="absolute right-2 top-2 z-10">
+      <div
+        className="absolute right-2 top-2 z-10"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.stopPropagation();
+          }
+        }}
+      >
         <BookmarkButton bountyId={bounty.id} size="sm" />
       </div>
 
